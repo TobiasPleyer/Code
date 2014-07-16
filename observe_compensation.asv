@@ -173,7 +173,6 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     % These vectors will hold our results while we step through the orders
     Pv = zeros(max_orders,length(w_Sk));
     P_optv = zeros(max_orders,length(w_Sk));
-    fit_P_optv = zeros(max_orders,length(fit_w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
     for order=1:max_orders
@@ -195,7 +194,6 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         D3_opt = diff(D2_opt) ./ (w_Sk(1)-w_Sk(2));
         Pv(order,:) = P;
         P_optv(order,:) = P_opt;
-        fit_P_optv(order,:) = fit_P_opt;
         D2_optv(order,:) = D2_opt;
         D3_optv(order,:) = D3_opt;
     end
@@ -206,11 +204,11 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
 
     Ev = zeros(max_orders,length(w_Sk));
     E_optv = zeros(max_orders,length(w_Sk));
-    fit_E_optv = zeros(max_orders,length(fit_I_Sk));
+    fit_E_optv = zeros(max_orders,length(w_Sk));
     for order=1:max_orders
-        d     = filtered_p_Sk-Pv(order,:);
-        d_opt = filtered_p_Sk-P_optv(order,:);
-        fit_d_opt = fit_p_Sk-fit_P_optv(order,:);
+        d     = filtered_p_Sk-P(order,:);
+        d_opt = filtered_p_Sk-P_opt(order,:);
+        fit_d_opt = fit_p_Sk-fit_P_opt(order,:);
 
         Sk_cplx     = sqrt(I_Sk) .* exp(1i*d);
         Sk_cplx_opt = sqrt(I_Sk) .* exp(1i*d_opt);
@@ -236,7 +234,7 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         fprintf('Order %d: The optimization for the spectral range of interest leads to %2.2f percent of the Fourier limit.\n',order,max(abs(fit_E_opt).^2)*100)
         Ev(order,:) = E;
         E_optv(order,:) = E_opt;
-        fit_E_optv(order,:) = fit_E_opt;
+        fit_E_optv(order,:) = fit_E_opt
     end
 %%
 
