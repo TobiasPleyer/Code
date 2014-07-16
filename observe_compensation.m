@@ -207,6 +207,9 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     Ev = zeros(max_orders,length(w_Sk));
     E_optv = zeros(max_orders,length(w_Sk));
     fit_E_optv = zeros(max_orders,length(fit_I_Sk));
+    peaks = zeros(1,max_orders);
+    best_order = 0;
+    best_value = 0;
     for order=1:max_orders
         d     = filtered_p_Sk-Pv(order,:);
         d_opt = filtered_p_Sk-P_optv(order,:);
@@ -237,6 +240,11 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         Ev(order,:) = E;
         E_optv(order,:) = E_opt;
         fit_E_optv(order,:) = fit_E_opt;
+        peaks(1,order) = max(abs(E_opt).^2)*100;
+        if max(abs(E_opt).^2)*100 > best_value
+            best_order = order;
+            best_value = max(abs(E_opt).^2)*100;
+        end
     end
 %%
 
@@ -361,6 +369,10 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         xlabel('Time[fs]')
         xlim([-2000 2000])
         legend('Fourier limit','Polynomial O(4) custom optimization')
+        %-------------------------Figure(11)------------------------------------
+        %----------------------------------------------------------------------
+        figure(11)
+        plot(1:max_orders,peaks)
     end
 %%
 
