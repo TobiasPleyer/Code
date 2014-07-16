@@ -207,6 +207,9 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     Ev = zeros(max_orders,length(w_Sk));
     E_optv = zeros(max_orders,length(w_Sk));
     fit_E_optv = zeros(max_orders,length(fit_I_Sk));
+    opt_peaks = zeros(1,max_orders);
+    opt_best_order = 0;
+    opt_best_value = 0;
     peaks = zeros(1,max_orders);
     best_order = 0;
     best_value = 0;
@@ -240,10 +243,15 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         Ev(order,:) = E;
         E_optv(order,:) = E_opt;
         fit_E_optv(order,:) = fit_E_opt;
-        peaks(1,order) = max(abs(E_opt).^2)*100;
-        if max(abs(E_opt).^2)*100 > best_value
+        opt_peaks(1,order) = max(abs(E_opt).^2)*100;
+        if max(abs(E_opt).^2)*100 > opt_best_value
+            opt_best_order = order;
+            opt_best_value = max(abs(E_opt).^2)*100;
+        end
+        peaks(1,order) = max(abs(E).^2)*100;
+        if max(abs(E).^2)*100 > best_value
             best_order = order;
-            best_value = max(abs(E_opt).^2)*100;
+            best_value = max(abs(E).^2)*100;
         end
     end
 %%
@@ -288,7 +296,7 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         figure(5)
         hold on
         plot(w_Sk(1:end-2),D2)
-        plot(w_Sk(1:end-2),D2_optv(best_order,:),'g')
+        plot(w_Sk(1:end-2),D2_optv(opt_best_order,:),'g')
         plot([w0 w0],[min(D2) max(D2)],'r')
         hold off
         title('GDD of our pulse (filter applied)')
@@ -299,7 +307,7 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         figure(6)
         hold on
         plot(w_Sk(1:end-3),D3)
-        plot(w_Sk(1:end-3),D3_optv(best_order,:),'g')
+        plot(w_Sk(1:end-3),D3_optv(opt_best_order,:),'g')
         plot([w0 w0],[min(D3) max(D3)],'r')
         hold off
         title('TOD of our pulse (filter applied)')
@@ -311,8 +319,8 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
         plot(w_Sk,filtered_p_Sk,'b')
-        plot(w_Sk,Pv(best_order,:),'r')
-        plot(w_Sk,P_optv(best_order,:),'g')
+        plot(w_Sk,Pv(opt_best_order,:),'r')
+        plot(w_Sk,P_optv(opt_best_order,:),'g')
         plot([w0 w0],[min(filtered_p_Sk) max(filtered_p_Sk)],'r')
         hold off
         xlim([lower-0.01 higher+0.01])
@@ -325,8 +333,8 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         figure(8)
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*50,'k')
-        plot(w_Sk,filtered_p_Sk-Pv(best_order,:),'g')
-        plot(w_Sk,filtered_p_Sk-P_optv(best_order,:),'c')
+        plot(w_Sk,filtered_p_Sk-Pv(opt_best_order,:),'g')
+        plot(w_Sk,filtered_p_Sk-P_optv(opt_best_order,:),'c')
         plot([w0 w0],[min(filtered_p_Sk) max(filtered_p_Sk)],'r')
         hold off
         xlim([lower-0.01 higher+0.01])
@@ -342,8 +350,8 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         plot(t,abs(E).^2,'g')
         % Shift it correctly
         t0 = find_closest_idx(t_opt,0);
-        E0 = find_closest_idx(abs(E_optv(best_order,:)).^2,max(abs(E_optv(best_order,:)).^2));
-        plot(t_opt,circshift(abs(E_optv(best_order,:)).^2,t0-E0),'c')
+        E0 = find_closest_idx(abs(E_optv(opt_best_order,:)).^2,max(abs(E_optv(opt_best_order,:)).^2));
+        plot(t_opt,circshift(abs(E_optv(opt_best_order,:)).^2,t0-E0),'c')
         hold off
         title('Achieved compression compared to Fourier limit')
         xlabel('Time[fs]')
@@ -366,7 +374,14 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         %-------------------------Figure(11)------------------------------------
         %----------------------------------------------------------------------
         figure(11)
-        plot(1:max_orders,peaks)
+        hold on
+        plot(1:max_orders,opt_peaks)
+        plot(1:max_orders,peaks,'r')
+        hold off
+        title('Compression quality with increasing order')
+        xlabel('Order')
+        ylabel('Peak percentage of Fourier limit')
+        legend('custom','least squares')
     end
 %%
 
