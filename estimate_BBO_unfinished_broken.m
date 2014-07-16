@@ -1,0 +1,95 @@
+%%This script tries to estimate the effect of 7.44m of BBO crystal material
+% on the shape of a perfect gaussian pulse
+
+% A gaussian pulse in the time domain is given by E(t) = E0 * exp(-t^2*a)
+% The Fourier transform of that pulse is E(w) = E0' * exp(-w^2/(4*a))
+
+c         = 299792458;
+thickness = 7.44; % in m
+lambda    = 0.980:0.0001:1.080;         % in um
+lambda    = lambda * 1e-6;
+omega     = 2*pi*c./lambda;
+lambda0   = 1.030 * 1e-6;
+omega0    = 2*pi*c/lambda0;
+% f  = c./lambda;
+% f0 = c./lambda0;
+
+[n, n_0, ~, D] = sellmeier('BBO',lambda0,lambda);
+n0 = n{1}; % n(l)
+n1 = n{2}; % dn/dl
+n2 = n{3}; % d^2n/dl^2
+
+Phi   = 2*pi./lambda * thickness .* n0;
+Phi_w = omega./c * thickness .* n0;
+
+[GDD_x,GDD_y] = CDeriv(omega,Phi_w,2);
+[TOD_x,TOD_y] = CDeriv(omega,Phi_w,3);
+
+fprintf('GDD: %2.1e fs^2\n',GDD_y(5)*1e30)
+fprintf('TOD: %2.1e fs^3\n',TOD_y(5)*1e45)
+
+S_w = exp(-(omega-omega0).^2./1.8e25) .* exp(1i*Phi_w);
+S   = exp(-(lambda-lambda0).^2./(2*pi*c/1.8e25)) .* exp(1i*Phi);
+
+[t,E] = Speck_Fourier(lambda,S);
+[m,peak_idx] = max(abs(E));
+t_center = t(peak_idx);
+center_idx = find_closest_idx(t,0);
+E = circshift(E',center_idx-peak_idx)';
+
+phase_minimum = min(Phi_w);
+GDD_phi0 = interp1(GDD_x,GDD_y,omega0,'pchip');
+TOD_phi0 = interp1(TOD_x,TOD_y,omega0,'pchip');
+taylor_Phi = 0.5*GDD_phi0*(omega-omega0).^2 + 1/6*TOD_phi0*(omega-omega0).^3;
+
+%% Figure part
+%-------------------------figure(1)----------------------------------------
+figure(1)
+%-------------------------------------subplot(2,2,1)-----------------------
+subplot(2,2,1)
+[haxes,hline1,hline2] = plotyy(t,abs(E).^2,t,unwrap(angle(E)));
+indx1 = find_closest_idx(abs(E).^2,0.5);
+indx2 = find_closest_idx(abs(E(1:indx1-10)).^2,0.5);
+delta_t = abs(t(indx2) - t(indx1)) * 1e12; % ps
+hold on
+plot(haxes(1),[t(indx1) t(indx1) t(indx2) t(indx2)],[0 0.5 0.5 0],'r')
+hold off
+text(1e-12,0.5,sprintf('delta t = %2.2f ps',delta_t),'color','red')
+title('Pulse in time with phase curve')
+ylabel(haxes(1),'Intensity') % label left y-axis
+ylabel(haxes(2),'Phase') % label right y-axis
+xlabel(haxes(2),'Time') % label x-axis
+% axis(haxes(1),[-0.6e-11, 0.6e-11, 0, 1])
+% axis(haxes(2),[-0.6e-11, 0.6e-11, 50, 150])
+set(haxes(1), 'box', 'off');
+%-------------------------------------subplot(2,2,2)-----------------------
+subplot(2,2,2)
+[haxes,hline1,hline2] = plotyy(omega,abs(S_w).^2,omega,taylor_Phi);
+axis(haxes(1),[1.815e15, 1.841e15, 0, 1])
+axis(haxes(2),[1.815e15, 1.841e15, 0, 30])
+% set(haxes(2),'xlim',[1.815e15, 1.841e15])
+%set(haxes(2), 'box', 'off');
+title('Spectrum plus the unwrapped phase after the BBO')
+ylabel(haxes(1),'Spectrum') % label left y-axis
+ylabel(haxes(2),'Phase') % label right y-axis
+xlabel(haxes(2),'Angular Frequency') % label x-axis
+%-------------------------------------subplot(2,2,3)-----------------------
+subplot(2,2,3)
+plot(GDD_x,GDD_y.*1e30)
+hold on
+idx0 = find_closest_idx(GDD_x,omega0);
+plot([GDD_x(idx0) GDD_x(idx0)],[2.8e5 GDD_y(idx0)*1e30],'color','red')
+plot([1.7e15 GDD_x(idx0)],[GDD_y(idx0)*1e30 GDD_y(idx0)*1e30],'color','red')
+hold off
+text(1.92e15,3.1e5,sprintf('According to:\nrefractiveindex.info\nthe GVD of BBO at 1.03um is\n42.086 fs^2/mm\n=> 7.44*42.086e3=%2.2fe5fs^2',7.44*0.42086),'EdgeColor','red','FontSize',8,'HorizontalAlignment','right')
+text(1.72e15,GDD_y(idx0)*1e30+0.04e5,sprintf('omega_0 = %2.2e s^{-1}',omega0),'color','red','FontSize',8)
+title('Calculation of the GDD')
+xlabel('Frequency')
+ylabel('GDD in fs^2')
+%-------------------------------------subplot(2,2,4)-----------------------
+subplot(2,2,4)
+plot(TOD_x,TOD_y.*1e45)
+axis([1.73e15 1.93e15 -5.5e5 -4.0e5])
+title('Calculation of the TOD')
+xlabel('Frequency')
+ylabel('TOD in fs^3')
