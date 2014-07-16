@@ -1,7 +1,7 @@
 %% ########################################################################
 %
 %  
-%  Version: 2.1
+%  Version: 2.2
 %
 %  INPUT: No input. At the moment the file path is hardcoded.
 %

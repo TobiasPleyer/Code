@@ -33,10 +33,10 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     [solution,val] = fminsearch(min_func,poly);
     % Now we have to adjust the linear and constant term so that we can see
     % a comparison with the other phases
-    min_func = @(x)sum(polyval(poly,omega)-polyval(solution,omega)-polyval(x,omega)).^2;
+    min_func = @(x)sum((polyval(poly,omega)-polyval(solution,omega)-polyval(x,omega)).^2);
     x0 = [0,0];
     [s,v] = fminsearch(min_func,x0);
     fprintf('Optimum value from make_fourier_fit: %2.2f\n',v)
     disp(s)
-    solution(end-1:end) = s;
+    solution(end-1:end) = solution(end-1:end) + s;
 end
