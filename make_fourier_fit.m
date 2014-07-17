@@ -37,7 +37,9 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
     
     [solution,val] = fminsearch(min_func,poly(1:end-2),options);
-    fprintf('For order %d we found: %2.2f\n',length(poly)-1,1-val)
+    fprintf('For order %d we found: %2.2f with start values (%2.3e,%2.3e)\n',length(poly)-1,1-val,poly(1),poly(2))
+    fprintf('Final constants:\n')
+    disp(solution)
     
     % Don't forget to append back the last two constants at the end
     solution = [solution poly(end-1:end)];
@@ -73,17 +75,31 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     X = 10 .^ (1:ord1);
     Y = 10 .^ (1:ord2);
     Z = zeros(length(Y),length(X));
+    max_x = 0;
+    max_y = 0;
+    max_sol = [];
+    max_val = 1;
     min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+    poly_safe = poly;
     for x=1:length(X)
         for y=1:length(Y)
             p = poly(1:end-2);
             p(1) = X(x);
             p(2) = Y(y);
-            [~,val2] = fminsearch(min_func,p,options);
+            [sol2,val2] = fminsearch(min_func,p,options);
+            if val2 < max_val
+                max_val = val2;
+                max_x = X(x);
+                max_y = Y(y);
+                max_sol = sol2;
+            end
             Z(y,x) = val2;
         end
     end
+    fprintf('The best result: %2.2f is won for (%d,%d)\n',max_val,max_x,max_y)
+    fprintf('Final constants:\n')
+    disp(max_sol)
     figure(figNum)
     plot(iter_history,fval_history,'x')
     xlabel('Iteration #')
@@ -92,4 +108,15 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     figure(22)
     disp(Z)
     surf(X,Y,Z)
+    figure(23)
+    hold on
+    plot(omega,phase,'k')
+    P = polyval(poly,omega);
+    plot(omega,P,'b')
+    P = polyval(solution,omega);
+    plot(omega,P,'r')
+    P = polyval(max_sol,omega);
+    plot(omega,P,'g')
+    hold off
+    legend('original','least square','least square guess','range guess')
 end
