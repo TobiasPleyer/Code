@@ -34,7 +34,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 if(~isdeployed)
 	cd(fileparts(which(mfilename)));
 end
-do_plot = true;
+do_plot = false;
 max_orders = 10;
 %%
 
@@ -185,8 +185,8 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
         % be an inadequate measure for our Fourier transform needs.
         % Thus we have to write our own minimization function and use Matlab's
         % built in `fminsearch`.
-        [fit_solution,fit_val] = make_fourier_fit(fit_w_Sk,fit_I_Sk,fit_p_Sk,Int_F,p);
-        [solution,val] = make_fourier_fit(w_Sk,I_Sk,filtered_p_Sk,Int_F,p);
+        [fit_solution,fit_val] = make_fourier_fit(fit_w_Sk,fit_I_Sk,fit_p_Sk,Int_F,p,order+11);
+        [solution,val] = make_fourier_fit(w_Sk,I_Sk,filtered_p_Sk,Int_F,p,order+11);
         P_opt = polyval(solution,w_Sk);
         fit_P_opt = polyval(fit_solution,fit_w_Sk);
         D1_opt = diff(P_opt) ./ (w_Sk(1)-w_Sk(2));
