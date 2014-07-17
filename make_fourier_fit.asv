@@ -37,7 +37,7 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
     
     [solution,val] = fminsearch(min_func,poly(1:end-2),options);
-    fprintf('For order %d we found: %2.2f\n',length(poly)-1,1-val)
+    fprintf('For order %d we found: %2.2\n',length(poly)-1,1-val)
     
     % Don't forget to append back the last two constants at the end
     solution = [solution poly(end-1:end)];
@@ -68,19 +68,5 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     % This is a try to see the effect of different starting values
     ord1 = floor(log10(poly(1)));
     ord2 = floor(log10(poly(2)));
-    X = 10 .^ (1:ord1);
-    Y = 10 .^ (1:ord2);
-    Z = zeros(length(Y),length(X));
-    for x=1:length(X)
-        for y=1:length(Y)
-            p = poly(1:end-2);
-            p(1) = X(x);
-            p(2) = Y(y);
-            [solution,val] = fminsearch(min_func,p,options);
-            Z(y,x) = val;
-        end
-    end
-    figure(22)
-    disp(Z)
-    surf(X,Y,Z)
+    
 end
