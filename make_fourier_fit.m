@@ -38,7 +38,7 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     % a comparison with the other phases
     min_func = @(x)sum((polyval(poly,omega)-polyval(solution,omega)-polyval(x,omega)).^2);
     x0 = [0,0];
-    [s,v] = fminsearch(min_func,x0,options);
+    [s,v] = fminsearch(min_func,x0);
     solution(end-1:end) = solution(end-1:end) + s;
     
     function stop=outfunc(x,optimvalues,state)
@@ -51,10 +51,13 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
         end
     end
     figure(figNum)
-    plot(iter_history,fval_history)
+    plot(iter_history,fval_history,'x')
     xlabel('Iteration #')
     ylabel('Returned optimum')
     title('Monitoring of the optimization trend curve')
-%     fval_history
-%     iter_history
+    if (figNum == 13)
+        [fval_history';iter_history']
+        fval_history'
+        iter_history'
+    end
 end
