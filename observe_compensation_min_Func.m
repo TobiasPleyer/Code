@@ -1,6 +1,5 @@
 function val=observe_compensation_min_Func(poly,omega,intensity,phase,lambda,fourierlimit)
     %poly(end-1:end) = 0;
-    poly(3) = poly(3)+rand(1)*1e5;
     P = polyval([poly 0 0],omega);
     D = phase - P;
     Sk_cplx = sqrt(intensity) .* exp(1i*D);

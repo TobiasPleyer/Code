@@ -176,9 +176,8 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     fit_P_optv = zeros(max_orders,length(fit_w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
-    for order=4:4
+    for order=2:max_orders
         p = polyfit(fit_w_Sk,fit_p_Sk,order);
-        p = [1 1 -5e7 0 0]
         P = polyval(p,w_Sk);
 
         % Matlab's builtin `polyfit` uses least square optimization. This might
@@ -213,7 +212,7 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     peaks = zeros(1,max_orders);
     best_order = 0;
     best_value = 0;
-    for order=1:max_orders
+    for order=2:max_orders
         d     = filtered_p_Sk-Pv(order,:);
         d_opt = filtered_p_Sk-P_optv(order,:);
         fit_d_opt = fit_p_Sk-fit_P_optv(order,:);
