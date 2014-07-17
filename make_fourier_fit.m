@@ -31,9 +31,9 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     c = 299792458;
     lambda = 2*pi*c ./ (omega*1e15);
 %     p = polyfit(omega,phase,order)
-    options = optimset('MaxFunEvals', 500,'OutputFcn',@outfunc);
+    options = optimset('MaxIter', 10000,'MaxFunEvals',1e10,'OutputFcn',@outfunc);
     min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
-    [solution,val] = fminsearch(min_func,poly,options);
+    [solution,val] = fminsearch(min_func,poly(1:end-2),options);
     % Now we have to adjust the linear and constant term so that we can see
     % a comparison with the other phases
     min_func = @(x)sum((polyval(poly,omega)-polyval(solution,omega)-polyval(x,omega)).^2);

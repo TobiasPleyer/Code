@@ -34,7 +34,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 if(~isdeployed)
 	cd(fileparts(which(mfilename)));
 end
-do_plot = false;
+do_plot = true;
 max_orders = 10;
 %%
 
@@ -176,9 +176,9 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     fit_P_optv = zeros(max_orders,length(fit_w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
-    for order=1:max_orders
+    for order=4:4
         p = polyfit(fit_w_Sk,fit_p_Sk,order);
-
+        p = [1 1 -5e7 0 0]
         P = polyval(p,w_Sk);
 
         % Matlab's builtin `polyfit` uses least square optimization. This might
