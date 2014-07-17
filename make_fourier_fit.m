@@ -58,7 +58,7 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
           iter_history = [iter_history; iteration];
         end
     end
-
+ 
     figure(figNum)
     plot(iter_history,fval_history,'x')
     xlabel('Iteration #')
@@ -66,20 +66,29 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     title(sprintf('Monitoring of the optimization trend curve for order %d.',length(poly)-1))
     
     % This is a try to see the effect of different starting values
-    ord1 = floor(log10(poly(1)));
-    ord2 = floor(log10(poly(2)));
+    fval_history = [];
+    iter_history = [];
+    ord1 = floor(log10(abs(poly(1))));
+    ord2 = floor(log10(abs(poly(2))));
     X = 10 .^ (1:ord1);
     Y = 10 .^ (1:ord2);
     Z = zeros(length(Y),length(X));
+    min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
+    options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
     for x=1:length(X)
         for y=1:length(Y)
             p = poly(1:end-2);
             p(1) = X(x);
             p(2) = Y(y);
-            [solution,val] = fminsearch(min_func,p,options);
-            Z(y,x) = val;
+            [~,val2] = fminsearch(min_func,p,options);
+            Z(y,x) = val2;
         end
     end
+    figure(figNum)
+    plot(iter_history,fval_history,'x')
+    xlabel('Iteration #')
+    ylabel('Returned optimum')
+    title(sprintf('Monitoring of the optimization trend curve for order %d.',length(poly)-1))
     figure(22)
     disp(Z)
     surf(X,Y,Z)
