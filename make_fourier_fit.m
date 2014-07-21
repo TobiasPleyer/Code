@@ -1,4 +1,4 @@
-function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly,figNum)
+function [solution,val]=make_fourier_fit()
     %% ########################################################################
     %%      Function make_fourier_fit
     %
@@ -29,11 +29,9 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     
     %% Too make function definitions easier we define a bunch of global variables
 
-    global I_Sk l_Sk p_Sk w_Sk
-    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
-    global Int_F
-    global p order
-
+    global w_Sk
+    global p figNum
+    
     %%
 
 
@@ -41,24 +39,21 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     
     fval_history = [];
     iter_history = [];
-    
-    c = 299792458;
-    lambda = 2*pi*c ./ (omega*1e15);
 
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc);
-    min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
+    min_func = @(x)observe_compensation_min_Func(x);
     
-    [solution,val] = fminsearch(min_func,poly(1:end-2),options);
-    fprintf('For order %d we found: %2.2f with start values (%2.3e,%2.3e)\n',length(poly)-1,1-val,poly(1),poly(2))
+    [solution,val] = fminsearch(min_func,p(1:end-2),options);
+    fprintf('For order %d we found: %2.2f with start values (%2.3e,%2.3e)\n',length(p)-1,1-val,p(1),p(2))
     fprintf('Final constants:\n')
     disp(solution)
     
     % Don't forget to append back the last two constants at the end
-    solution = [solution poly(end-1:end)];
+    solution = [solution p(end-1:end)];
     
     % Now we have to adjust the linear and constant term so that we can see
     % a comparison with the other phases
-    min_func = @(x)sum((polyval(poly,omega)-polyval(solution,omega)-polyval(x,omega)).^2);
+    min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x,w_Sk)).^2);
     x0 = [0,0];
     [s,v] = fminsearch(min_func,x0);
     solution(end-1:end) = solution(end-1:end) + s;
@@ -74,11 +69,12 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     end
  
     figure(figNum)
+    figNum = figNum + 1;
     plot(iter_history,fval_history,'x')
     xlabel('Iteration #')
     ylabel('Returned optimum')
-    title(sprintf('Monitoring of the optimization trend curve for order %d.',length(poly)-1))
+    title(sprintf('Monitoring of the optimization trend curve for order %d.',length(p)-1))
     
     % Call test_initial_conditions.m
-    test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,figNum+1,solution)
+    test_initial_conditions(solution)
 end

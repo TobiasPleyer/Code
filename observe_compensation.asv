@@ -43,9 +43,10 @@
 %% Too make function definitions easier we define a bunch of global variables
 
     global I_Sk l_Sk p_Sk w_Sk
+    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
     global Int_F
     global p order figNum
-    figNum = 1;
+    figNum = 0;
 
 %%
 
@@ -184,6 +185,7 @@
     % These vectors will hold our results while we step through the orders
     Pv = zeros(max_orders,length(w_Sk));
     P_optv = zeros(max_orders,length(w_Sk));
+    fit_P_optv = zeros(max_orders,length(fit_w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
     for order=4
@@ -196,12 +198,14 @@
         % built in `fminsearch`.
         [solution,val] = make_fourier_fit();
         P_opt = polyval(solution,w_Sk);
+        fit_P_opt = polyval(fit_solution,fit_w_Sk);
         D1_opt = diff(P_opt) ./ (w_Sk(1)-w_Sk(2));
         D2_opt = diff(D1_opt) ./ (w_Sk(1)-w_Sk(2));
         D2_opt = filtfilt(B,A,D2_opt);
         D3_opt = diff(D2_opt) ./ (w_Sk(1)-w_Sk(2));
         Pv(order,:) = P;
         P_optv(order,:) = P_opt;
+        fit_P_optv(order,:) = fit_P_opt;
         D2_optv(order,:) = D2_opt;
         D3_optv(order,:) = D3_opt;
     end
@@ -212,6 +216,7 @@
 
     Ev = zeros(max_orders,length(w_Sk));
     E_optv = zeros(max_orders,length(w_Sk));
+    fit_E_optv = zeros(max_orders,length(fit_I_Sk));
     opt_peaks = zeros(1,max_orders);
     opt_best_order = 0;
     opt_best_value = 0;
@@ -221,25 +226,33 @@
     for order=4
         d     = filtered_p_Sk-Pv(order,:);
         d_opt = filtered_p_Sk-P_optv(order,:);
+        fit_d_opt = fit_p_Sk-fit_P_optv(order,:);
 
         Sk_cplx     = sqrt(I_Sk) .* exp(1i*d);
         Sk_cplx_opt = sqrt(I_Sk) .* exp(1i*d_opt);
+        fit_Sk_cplx_opt = sqrt(fit_I_Sk) .* exp(1i*fit_d_opt);
 
         [t,E]         = Speck_Fourier(l_Sk'*1e-9,Sk_cplx);
         [t_opt,E_opt] = Speck_Fourier(l_Sk'*1e-9,Sk_cplx_opt);
+        [fit_t_opt,fit_E_opt] = Speck_Fourier(fit_l_Sk'*1e-9,fit_Sk_cplx_opt);
 
         t     = t * 1e15;
         t_opt = t_opt * 1e15;
+        fit_t_opt = fit_t_opt * 1e15;
 
         Int     = abs(trapz(t,abs(E).^2));
         Int_opt = abs(trapz(t_opt,abs(E_opt).^2));
+        fit_Int_opt = abs(trapz(fit_t_opt,abs(fit_E_opt).^2));
 
         % Scale the integrals to allow for comparison with Fourier limit
         E     = E .* sqrt(Int_F ./ Int);
         E_opt = E_opt .* sqrt(Int_F ./ Int_opt);
+        fit_E_opt = fit_E_opt .* sqrt(fit_Int_F ./ fit_Int_opt);
         fprintf('Order %d: The optimization for the whole range leads to %2.2f percent of the Fourier limit.\n',order,max(abs(E_opt).^2)*100)
+        fprintf('Order %d: The optimization for the spectral range of interest leads to %2.2f percent of the Fourier limit.\n',order,max(abs(fit_E_opt).^2)*100)
         Ev(order,:) = E;
         E_optv(order,:) = E_opt;
+        fit_E_optv(order,:) = fit_E_opt;
         opt_peaks(1,order) = max(abs(E_opt).^2)*100;
         if max(abs(E_opt).^2)*100 > opt_best_value
             opt_best_order = order;
@@ -266,7 +279,7 @@
         legend('Intensity','Phase')
         %-------------------------Figure(2)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(2)
         figNum = figNum + 1;
         plotyy(w_Sk,I_Sk,w_Sk,p_Sk)
         title('Intensity and phase of our pulse in the frequency domain')
@@ -274,7 +287,7 @@
         legend('Intensity','Phase')
         %-------------------------Figure(3)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(3)
         figNum = figNum + 1;
         hold on
         plot(w_Sk,filtered_p_Sk)
@@ -284,7 +297,7 @@
         xlabel('Omega[1/fs]')
         %-------------------------Figure(4)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(4)
         figNum = figNum + 1;
         hold on
         plot(w_Sk(1:end-1),D1)
@@ -294,7 +307,7 @@
         xlabel('Omega[1/fs]')
         %-------------------------Figure(5)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(5)
         figNum = figNum + 1;
         hold on
         plot(w_Sk(1:end-2),D2)
@@ -306,7 +319,7 @@
         legend('filtered phase','custom')
         %-------------------------Figure(6)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(6)
         figNum = figNum + 1;
         hold on
         plot(w_Sk(1:end-3),D3)
@@ -318,7 +331,7 @@
         legend('filtered phase','custom')
         %-------------------------Figure(7)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(7)
         figNum = figNum + 1;
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
@@ -334,7 +347,7 @@
         legend('Intensity','Original Phase','least square','custom')
         %-------------------------Figure(8)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(8)
         figNum = figNum + 1;
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*50,'k')
@@ -349,7 +362,7 @@
         legend('Intensity','Original Phase','least square','custom')
         %-------------------------Figure(9)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(9)
         figNum = figNum + 1;
         hold on
         plot(t_F,abs(Ek_F).^2,'b')
@@ -365,7 +378,22 @@
         legend('Fourier limit','best result','best result narrow range')
         %-------------------------Figure(10)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
+        figure(10)
+        figNum = figNum + 1;
+        hold on
+        plot(fit_t_F,abs(fit_Ek_F).^2,'b')
+        % Shift it correctly
+        t0 = find_closest_idx(fit_t_opt,0);
+        E0 = find_closest_idx(abs(fit_E_opt').^2,max(abs(fit_E_opt').^2));
+        plot(fit_t_opt,circshift(abs(fit_E_opt').^2,t0-E0),'r')
+        hold off
+        title('Achieved compression in spectral range of interest compared to Fourier limit')
+        xlabel('Time[fs]')
+        xlim([-2000 2000])
+        legend('Fourier limit','Polynomial O(4) custom optimization')
+        %-------------------------Figure(11)------------------------------------
+        %----------------------------------------------------------------------
+        figure(11)
         figNum = figNum + 1;
         hold on
         plot(1:max_orders,opt_peaks)

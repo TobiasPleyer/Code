@@ -1,4 +1,4 @@
-function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,figNum,solution)
+function test_initial_conditions(solution)
     %% ########################################################################
     %  FUNCTION TEST_INITIAL_CONDITIONS
     %  
@@ -29,10 +29,8 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     
     %% Too make function definitions easier we define a bunch of global variables
 
-    global I_Sk l_Sk p_Sk w_Sk
-    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
-    global Int_F
-    global p order
+    global w_Sk p_Sk
+    global p figNum
 
     %%
 
@@ -40,8 +38,8 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     %% Code
 
     % This is a try to see the effect of different starting values
-    ord1 = floor(log10(abs(poly(1))));
-    ord2 = floor(log10(abs(poly(2))));
+    ord1 = floor(log10(abs(p(1))));
+    ord2 = floor(log10(abs(p(2))));
     X = 10 .^ (1:ord1);
     Y = 10 .^ (1:ord2);
     Z = zeros(length(Y),length(X));
@@ -49,15 +47,14 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     max_y = 0;
     max_sol = [];
     max_val = 1;
-    min_func = @(x)observe_compensation_min_Func(x,omega,intensity,phase,lambda',fourierlimit);
+    min_func = @(x)observe_compensation_min_Func(x);
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
-    poly_safe = poly;
     for x=1:length(X)
         for y=1:length(Y)
-            p = poly(1:end-2);
-            p(1) = X(x);
-            p(2) = Y(y);
-            [sol2,val2] = fminsearch(min_func,p,options);
+            p_new = p(1:end-2);
+            p_new(1) = X(x);
+            p_new(2) = Y(y);
+            [sol2,val2] = fminsearch(min_func,p_new,options);
             if val2 < max_val
                 max_val = val2;
                 max_x = X(x);
@@ -70,11 +67,11 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     
     % Ok we found an optimum. Now adjust the linear and constant term.
     % Don't forget to append back the last two constants at the end
-    max_sol = [max_sol poly(end-1:end)];
+    max_sol = [max_sol p(end-1:end)];
     
     % Now we have to adjust the linear and constant term so that we can see
     % a comparison with the other phases
-    min_func = @(x)sum((polyval(poly,omega)-polyval(max_sol,omega)-polyval(x,omega)).^2);
+    min_func = @(x)sum((polyval(p,w_Sk)-polyval(max_sol,w_Sk)-polyval(x,w_Sk)).^2);
     x0 = [0,0];
     [s,v] = fminsearch(min_func,x0);
     max_sol(end-1:end) = max_sol(end-1:end) + s;
@@ -84,20 +81,22 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     fprintf('Final constants:\n')
     disp(max_sol)
     figure(figNum)
+    figNum = figNum + 1;
     disp(Z)
     surf(X,Y,Z)
-    figure(figNum+1)
+    figure(figNum)
+    figNum = figNum + 1;
     hold on
-    plot(omega,phase,'k')
-    P = polyval(poly,omega);
-    plot(omega,P,'b')
-    P = polyval(solution,omega);
-    plot(omega,P,'r')
-    P = polyval(max_sol,omega);
-    plot(omega,P,'g')
+    plot(w_Sk,p_Sk,'k')
+    P = polyval(p,w_Sk);
+    plot(w_Sk,P,'b')
+    P = polyval(solution,w_Sk);
+    plot(w_Sk,P,'r')
+    P = polyval(max_sol,w_Sk);
+    plot(w_Sk,P,'g')
     hold off
     legend('original','least square','least square guess','range guess')
-    disp(poly)
+    disp(p)
     disp(solution)
     disp(max_sol)
 end
