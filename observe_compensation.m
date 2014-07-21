@@ -22,29 +22,40 @@
 
 %% INITILIZATION
 
-clc;    % Clear the command window.
-close all;  % Close all figures (except those of imtool.)
-clear;  % Erase all existing variables. Or clearvars if you want.
-format shortg;
-warning off
-%format compact;
-set(0,'DefaultFigureWindowStyle','docked')
+    clc;    % Clear the command window.
+    close all;  % Close all figures (except those of imtool.)
+    clear;  % Erase all existing variables. Or clearvars if you want.
+    format shortg;
+    warning off
+    %format compact;
+    set(0,'DefaultFigureWindowStyle','docked')
 
-% Change the current folder to the folder of this m-file.
-if(~isdeployed)
-	cd(fileparts(which(mfilename)));
-end
-do_plot = false;
-max_orders = 10;
+    % Change the current folder to the folder of this m-file.
+    if(~isdeployed)
+        cd(fileparts(which(mfilename)));
+    end
+    do_plot = false;
+    max_orders = 10;
+    
+%%
+
+
+%% Too make function definitions easier we define a bunch of global variables
+
+    global I_Sk l_Sk p_Sk w_Sk
+    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
+    global Int_F
+    global p order
+
 %%
 
 
 %% This is the part where all filenames and directories are defined
 
-parent         = '../Daten/Chirped Mirrors/Frogs/25.3W_RTT=6.404us_Ip=12.8A/';
-filebase       = '001_AIR_FROG_25.3W_RTT=6.404us_Ip=12.8A.bin';  
-filename_Et    = sprintf('%s%s.Ek.dat',parent,filebase);
-filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
+    parent         = '../Daten/Chirped Mirrors/Frogs/25.3W_RTT=6.404us_Ip=12.8A/';
+    filebase       = '001_AIR_FROG_25.3W_RTT=6.404us_Ip=12.8A.bin';  
+    filename_Et    = sprintf('%s%s.Ek.dat',parent,filebase);
+    filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
 
 %%
 

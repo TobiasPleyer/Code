@@ -12,6 +12,7 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     %      v1.0: First runable state. (2014/07/21)
     %
     %% ########################################################################
+    
     %% INITILIZATION
     %--------------------------------------------------------------------------
     format shortg;
@@ -22,7 +23,20 @@ function test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,
     if(~isdeployed)
         cd(fileparts(which(mfilename)));
     end
-    %% ########################################################################
+    
+    %%
+    
+    
+    %% Too make function definitions easier we define a bunch of global variables
+
+    global I_Sk l_Sk p_Sk w_Sk
+    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
+    global Int_F
+    global p order
+
+    %%
+
+
     %% Code
 
     % This is a try to see the effect of different starting values

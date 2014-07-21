@@ -27,18 +27,6 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     %
     %% ########################################################################
     
-    %% Too make function definitions easier we define a bunch of global variables
-
-    global I_Sk l_Sk p_Sk w_Sk
-    global fit_I_Sk fit_l_Sk fit_p_Sk fit_w_Sk
-    global Int_F
-    global p order
-
-    %%
-
-
-    %% Code
-    
     fval_history = [];
     iter_history = [];
     
