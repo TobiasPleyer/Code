@@ -121,7 +121,7 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     perc     = 0.05;
     fit_w_Sk = w_Sk(I_Sk > perc*M);
     % Now find the fringe values
-    lower = min(fit_w_Sk);
+    lower  = min(fit_w_Sk);
     higher = max(fit_w_Sk);
     % Now we use these values to include everything in between
     fit_w_Sk = w_Sk(w_Sk >= lower & w_Sk <= higher);
@@ -132,11 +132,11 @@ filename_Speck = sprintf('%s%s.Speck.dat',parent,filebase);
     % Make a second Fourier limit to proof that our chosen spectral realm
     % of interest. The integrals should be the same.
 
-    Sk_cplx    = sqrt(fit_I_Sk) .* exp(1i*0); % This equals constant phase -> Fourier limit
-    lambda = 2*pi*c ./ (fit_w_Sk*1e15);
+    Sk_cplx   = sqrt(fit_I_Sk) .* exp(1i*0); % This equals constant phase -> Fourier limit
+    lambda    = 2*pi*c ./ (fit_w_Sk*1e15);
     [fit_t_F,fit_Ek_F] = Speck_Fourier(lambda,Sk_cplx);
-    fit_t_F        = fit_t_F * 1e15;
-    fit_Int_F      = abs(trapz(t_F,abs(Ek_F).^2));
+    fit_t_F   = fit_t_F * 1e15;
+    fit_Int_F = abs(trapz(t_F,abs(Ek_F).^2));
     
 %%
 
