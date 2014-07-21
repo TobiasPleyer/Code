@@ -34,7 +34,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 if(~isdeployed)
 	cd(fileparts(which(mfilename)));
 end
-do_plot = true;
+do_plot = false;
 max_orders = 10;
 %%
 

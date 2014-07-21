@@ -66,4 +66,7 @@ function [solution,val]=make_fourier_fit(omega,intensity,phase,fourierlimit,poly
     xlabel('Iteration #')
     ylabel('Returned optimum')
     title(sprintf('Monitoring of the optimization trend curve for order %d.',length(poly)-1))
+    
+    % Call test_initial_conditions.m
+    test_initial_conditions(omega,lambda,intensity,phase,fourierlimit,poly,figNum+1,solution)
 end
