@@ -34,7 +34,7 @@
     if(~isdeployed)
         cd(fileparts(which(mfilename)));
     end
-    do_plot = false;
+    do_plot = true;
     max_orders = 10;
     
 %%
@@ -219,8 +219,8 @@
     best_order = 0;
     best_value = 0;
     for order=4
-        d     = filtered_p_Sk-Pv(order,:);
-        d_opt = filtered_p_Sk-P_optv(order,:);
+        d     = p_Sk-Pv(order,:);
+        d_opt = p_Sk-P_optv(order,:);
 
         Sk_cplx     = sqrt(I_Sk) .* exp(1i*d);
         Sk_cplx_opt = sqrt(I_Sk) .* exp(1i*d_opt);
@@ -277,10 +277,10 @@
         figure(figNum)
         figNum = figNum + 1;
         hold on
-        plot(w_Sk,filtered_p_Sk)
-        plot([w0 w0],[min(filtered_p_Sk) max(filtered_p_Sk)],'r')
+        plot(w_Sk,p_Sk)
+        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
         hold off
-        title('Filtered phase in spectral domain')
+        title('Phase in spectral domain')
         xlabel('Omega[1/fs]')
         %-------------------------Figure(4)------------------------------------
         %----------------------------------------------------------------------
@@ -322,13 +322,13 @@
         figNum = figNum + 1;
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
-        plot(w_Sk,filtered_p_Sk,'b')
+        plot(w_Sk,p_Sk,'b')
         plot(w_Sk,Pv(opt_best_order,:),'r')
         plot(w_Sk,P_optv(opt_best_order,:),'g')
-        plot([w0 w0],[min(filtered_p_Sk) max(filtered_p_Sk)],'r')
+        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
         hold off
         xlim([lower-0.01 higher+0.01])
-        ylim([min(filtered_p_Sk)-2 max(filtered_p_Sk)+2])
+        ylim([min(p_Sk)-2 max(p_Sk)+2])
         title('Taylor approximations for our phase curve')
         xlabel('Omega[1/fs]')
         legend('Intensity','Original Phase','least square','custom')
@@ -338,9 +338,9 @@
         figNum = figNum + 1;
         hold on
         plot(w_Sk,I_Sk./max(I_Sk).*50,'k')
-        plot(w_Sk,filtered_p_Sk-Pv(opt_best_order,:),'g')
-        plot(w_Sk,filtered_p_Sk-P_optv(opt_best_order,:),'c')
-        plot([w0 w0],[min(filtered_p_Sk) max(filtered_p_Sk)],'r')
+        plot(w_Sk,p_Sk-Pv(opt_best_order,:),'g')
+        plot(w_Sk,p_Sk-P_optv(opt_best_order,:),'c')
+        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
         hold off
         xlim([lower-0.01 higher+0.01])
         ylim([-20 50])
