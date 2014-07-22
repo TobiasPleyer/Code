@@ -40,8 +40,10 @@ function test_initial_conditions(solution)
     % This is a try to see the effect of different starting values
     ord1 = floor(log10(abs(p(1))));
     ord2 = floor(log10(abs(p(2))));
-    X = floor(p(1)/(10^(ord1-1)))-5:0.1:floor(p(1)/(10^(ord1-1)))+5;
-    Y = floor(p(2)/(10^(ord2-1)))-5:0.1:floor(p(2)/(10^(ord2-1)))+5;
+    X = floor(p(1)/(10^(ord1-1)))-5:0.4:floor(p(1)/(10^(ord1-1)))+5;
+    X=X.*(10^(ord1-1));
+    Y = floor(p(2)/(10^(ord2-1)))-5:0.4:floor(p(2)/(10^(ord2-1)))+5;
+    Y=Y.*(10^(ord2-1));
     Z = zeros(length(Y),length(X));
     max_x = 0;
     max_y = 0;
