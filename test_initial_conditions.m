@@ -86,6 +86,10 @@ function test_initial_conditions(solution)
     figNum = figNum + 1;
     disp(Z)
     surf(X,Y,Z)
+    title('3D visualization of the optimization outcome for different initial conditions around our least square guess')
+    xlabel('Highest order polynomial constant')
+    ylabel('Second highest order polynomial constant')
+    zlabel('Achieved optimum')
     figure(figNum)
     figNum = figNum + 1;
     hold on
@@ -101,4 +105,9 @@ function test_initial_conditions(solution)
     disp(p)
     disp(solution)
     disp(max_sol)
+    fprintf('Difference of initial value to least square:\n')
+    fprintf('\tHighest order:\n')
+    disp(X-ones(size(X)).*p(1))
+    fprintf('\tSecond highest order:\n')
+    disp(Y-ones(size(Y)).*p(2))
 end

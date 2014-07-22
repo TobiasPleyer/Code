@@ -55,7 +55,7 @@ function [solution,val]=make_fourier_fit()
     % a comparison with the other phases
     min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x,w_Sk)).^2);
     x0 = [0,0];
-    [s,v] = fminsearch(min_func,x0);
+    [s,~] = fminsearch(min_func,x0);
     solution(end-1:end) = solution(end-1:end) + s;
     
     function stop=outfunc(x,optimvalues,state)
