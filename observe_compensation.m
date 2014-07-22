@@ -1,7 +1,7 @@
 %% ########################################################################
 %
 %  
-%  Version: 2.2
+%  Version: 3.0
 %
 %  INPUT: No input. At the moment the file path is hardcoded.
 %
@@ -17,6 +17,8 @@
 %            method. This accommodates our needs better. (14.07.2014)
 %      v2.2: Changed the method to only consider our spectral realm of
 %            interest in order to avoid noise contribution. (15.07.2014)
+%      v3.0: Concluded a series of test and code changes and ended up with
+%            this running and stable version.
 %
 %% ########################################################################
 
@@ -186,7 +188,7 @@
     P_optv = zeros(max_orders,length(w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
-    for order=4
+    for order=2:max_orders
         p = polyfit(fit_w_Sk,fit_p_Sk,order);
         P = polyval(p,w_Sk);
 
@@ -218,7 +220,7 @@
     peaks = zeros(1,max_orders);
     best_order = 0;
     best_value = 0;
-    for order=4
+    for order=2:max_orders
         d     = p_Sk-Pv(order,:);
         d_opt = p_Sk-P_optv(order,:);
 

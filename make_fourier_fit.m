@@ -76,5 +76,5 @@ function [solution,val]=make_fourier_fit()
     title(sprintf('Monitoring of the optimization trend curve for order %d.',length(p)-1))
     
     % Call test_initial_conditions.m
-    test_initial_conditions(solution)
+%     test_initial_conditions(solution)
 end
