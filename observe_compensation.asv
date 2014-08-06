@@ -39,7 +39,7 @@
     do_plot = false;
     max_order = 10;
     orders = 2:max_order;
-%     orders = 4;
+    orders = 4;
     
 %%
 
