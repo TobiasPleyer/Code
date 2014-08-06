@@ -66,6 +66,11 @@ function test_initial_conditions(solution)
             Z(y,x) = val2;
         end
     end
+    % Find out what the best five values are
+    [sortedValues,sortIndex] = sort(Z(:),'descend');
+    maxIndex = sortIndex(end-4:end);
+    fprintf('Best values:\n')
+    disp(Z(maxIndex))
     
     % Ok we found an optimum. Now adjust the linear and constant term.
     % Don't forget to append back the last two constants at the end

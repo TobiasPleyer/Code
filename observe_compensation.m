@@ -188,6 +188,15 @@
     P_optv = zeros(max_orders,length(w_Sk));
     D2_optv = zeros(max_orders,length(w_Sk)-2);
     D3_optv = zeros(max_orders,length(w_Sk)-3);
+    
+    Ev = zeros(max_orders,length(w_Sk));
+    E_optv = zeros(max_orders,length(w_Sk));
+    opt_peaks = zeros(1,max_orders);
+    opt_best_order = 0;
+    opt_best_value = 0;
+    peaks = zeros(1,max_orders);
+    best_order = 0;
+    best_value = 0;
     for order=2:max_orders
         p = polyfit(fit_w_Sk,fit_p_Sk,order);
         P = polyval(p,w_Sk);
@@ -206,21 +215,12 @@
         P_optv(order,:) = P_opt;
         D2_optv(order,:) = D2_opt;
         D3_optv(order,:) = D3_opt;
-    end
+
 %%
 
 
 %% Integrate back into the time domain
 
-    Ev = zeros(max_orders,length(w_Sk));
-    E_optv = zeros(max_orders,length(w_Sk));
-    opt_peaks = zeros(1,max_orders);
-    opt_best_order = 0;
-    opt_best_value = 0;
-    peaks = zeros(1,max_orders);
-    best_order = 0;
-    best_value = 0;
-    for order=2:max_orders
         d     = p_Sk-Pv(order,:);
         d_opt = p_Sk-P_optv(order,:);
 
@@ -252,6 +252,21 @@
             best_order = order;
             best_value = max(abs(E).^2)*100;
         end
+        
+    figure(figNum)
+        figNum = figNum + 1;
+        hold on
+        plot(t_F,abs(Ek_F).^2,'b')
+        plot(t,abs(E).^2,'g')
+        % Shift it correctly
+        t0 = find_closest_idx(t_opt,0);
+        E0 = find_closest_idx(abs(E_opt).^2,max(abs(E_opt).^2));
+        plot(t_opt,circshift(abs(E_opt).^2,t0-E0),'c')
+        hold off
+        title('Achieved compression compared to Fourier limit')
+        xlabel('Time[fs]')
+        xlim([-2000 2000])
+        legend('Fourier limit','Least square','Optimization')
     end
 %%
 
@@ -260,123 +275,123 @@
     if do_plot
         %-------------------------Figure(1)------------------------------------
         %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        plotyy(t_Et,I_Et,t_Et,p_Et)
-        title('Intensity and phase of our pulse in the time domain')
-        xlabel('Time[fs]')
-        legend('Intensity','Phase')
-        %-------------------------Figure(2)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        plotyy(w_Sk,I_Sk,w_Sk,p_Sk)
-        title('Intensity and phase of our pulse in the frequency domain')
-        xlabel('Omega[1/fs]')
-        legend('Intensity','Phase')
-        %-------------------------Figure(3)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk,p_Sk)
-        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
-        hold off
-        title('Phase in spectral domain')
-        xlabel('Omega[1/fs]')
-        %-------------------------Figure(4)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk(1:end-1),D1)
-        plot([w0 w0],[min(D1) max(D1)],'r')
-        hold off
-        title('GD of our pulse (filter applied)')
-        xlabel('Omega[1/fs]')
-        %-------------------------Figure(5)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk(1:end-2),D2)
-        plot(w_Sk(1:end-2),D2_optv(opt_best_order,:),'g')
-        plot([w0 w0],[min(D2) max(D2)],'r')
-        hold off
-        title('GDD of our pulse (filter applied)')
-        xlabel('Omega[1/fs]')
-        legend('filtered phase','custom')
-        %-------------------------Figure(6)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk(1:end-3),D3)
-        plot(w_Sk(1:end-3),D3_optv(opt_best_order,:),'g')
-        plot([w0 w0],[min(D3) max(D3)],'r')
-        hold off
-        title('TOD of our pulse (filter applied)')
-        xlabel('Omega[1/fs]')
-        legend('filtered phase','custom')
-        %-------------------------Figure(7)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
-        plot(w_Sk,p_Sk,'b')
-        plot(w_Sk,Pv(opt_best_order,:),'r')
-        plot(w_Sk,P_optv(opt_best_order,:),'g')
-        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
-        hold off
-        xlim([lower-0.01 higher+0.01])
-        ylim([min(p_Sk)-2 max(p_Sk)+2])
-        title('Taylor approximations for our phase curve')
-        xlabel('Omega[1/fs]')
-        legend('Intensity','Original Phase','least square','custom')
-        %-------------------------Figure(8)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(w_Sk,I_Sk./max(I_Sk).*50,'k')
-        plot(w_Sk,p_Sk-Pv(opt_best_order,:),'g')
-        plot(w_Sk,p_Sk-P_optv(opt_best_order,:),'c')
-        plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
-        hold off
-        xlim([lower-0.01 higher+0.01])
-        ylim([-20 50])
-        title('Difference between the Taylor approximation and real phase')
-        xlabel('Omega[1/fs]')
-        legend('Intensity','Original Phase','least square','custom')
-        %-------------------------Figure(9)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(t_F,abs(Ek_F).^2,'b')
-        plot(t,abs(E).^2,'g')
-        % Shift it correctly
-        t0 = find_closest_idx(t_opt,0);
-        E0 = find_closest_idx(abs(E_optv(opt_best_order,:)).^2,max(abs(E_optv(opt_best_order,:)).^2));
-        plot(t_opt,circshift(abs(E_optv(opt_best_order,:)).^2,t0-E0),'c')
-        hold off
-        title('Achieved compression compared to Fourier limit')
-        xlabel('Time[fs]')
-        xlim([-2000 2000])
-        legend('Fourier limit','best result','best result narrow range')
-        %-------------------------Figure(10)------------------------------------
-        %----------------------------------------------------------------------
-        figure(figNum)
-        figNum = figNum + 1;
-        hold on
-        plot(1:max_orders,opt_peaks)
-        plot(1:max_orders,peaks,'r')
-        hold off
-        title('Compression quality with increasing order')
-        xlabel('Order')
-        ylabel('Peak percentage of Fourier limit')
-        legend('custom','least squares')
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         plotyy(t_Et,I_Et,t_Et,p_Et)
+%         title('Intensity and phase of our pulse in the time domain')
+%         xlabel('Time[fs]')
+%         legend('Intensity','Phase')
+%         %-------------------------Figure(2)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         plotyy(w_Sk,I_Sk,w_Sk,p_Sk)
+%         title('Intensity and phase of our pulse in the frequency domain')
+%         xlabel('Omega[1/fs]')
+%         legend('Intensity','Phase')
+%         %-------------------------Figure(3)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk,p_Sk)
+%         plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
+%         hold off
+%         title('Phase in spectral domain')
+%         xlabel('Omega[1/fs]')
+%         %-------------------------Figure(4)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk(1:end-1),D1)
+%         plot([w0 w0],[min(D1) max(D1)],'r')
+%         hold off
+%         title('GD of our pulse (filter applied)')
+%         xlabel('Omega[1/fs]')
+%         %-------------------------Figure(5)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk(1:end-2),D2)
+%         plot(w_Sk(1:end-2),D2_optv(opt_best_order,:),'g')
+%         plot([w0 w0],[min(D2) max(D2)],'r')
+%         hold off
+%         title('GDD of our pulse (filter applied)')
+%         xlabel('Omega[1/fs]')
+%         legend('filtered phase','custom')
+%         %-------------------------Figure(6)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk(1:end-3),D3)
+%         plot(w_Sk(1:end-3),D3_optv(opt_best_order,:),'g')
+%         plot([w0 w0],[min(D3) max(D3)],'r')
+%         hold off
+%         title('TOD of our pulse (filter applied)')
+%         xlabel('Omega[1/fs]')
+%         legend('filtered phase','custom')
+%         %-------------------------Figure(7)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
+%         plot(w_Sk,p_Sk,'b')
+%         plot(w_Sk,Pv(opt_best_order,:),'r')
+%         plot(w_Sk,P_optv(opt_best_order,:),'g')
+%         plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
+%         hold off
+%         xlim([lower-0.01 higher+0.01])
+%         ylim([min(p_Sk)-2 max(p_Sk)+2])
+%         title('Taylor approximations for our phase curve')
+%         xlabel('Omega[1/fs]')
+%         legend('Intensity','Original Phase','least square','custom')
+%         %-------------------------Figure(8)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(w_Sk,I_Sk./max(I_Sk).*50,'k')
+%         plot(w_Sk,p_Sk-Pv(opt_best_order,:),'g')
+%         plot(w_Sk,p_Sk-P_optv(opt_best_order,:),'c')
+%         plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
+%         hold off
+%         xlim([lower-0.01 higher+0.01])
+%         ylim([-20 50])
+%         title('Difference between the Taylor approximation and real phase')
+%         xlabel('Omega[1/fs]')
+%         legend('Intensity','Original Phase','least square','custom')
+%         %-------------------------Figure(9)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(t_F,abs(Ek_F).^2,'b')
+%         plot(t,abs(E).^2,'g')
+%         % Shift it correctly
+%         t0 = find_closest_idx(t_opt,0);
+%         E0 = find_closest_idx(abs(E_optv(opt_best_order,:)).^2,max(abs(E_optv(opt_best_order,:)).^2));
+%         plot(t_opt,circshift(abs(E_optv(opt_best_order,:)).^2,t0-E0),'c')
+%         hold off
+%         title('Achieved compression compared to Fourier limit')
+%         xlabel('Time[fs]')
+%         xlim([-2000 2000])
+%         legend('Fourier limit','Least square','Optimization')
+%         %-------------------------Figure(10)------------------------------------
+%         %----------------------------------------------------------------------
+%         figure(figNum)
+%         figNum = figNum + 1;
+%         hold on
+%         plot(1:max_orders,opt_peaks)
+%         plot(1:max_orders,peaks,'r')
+%         hold off
+%         title('Compression quality with increasing order')
+%         xlabel('Order')
+%         ylabel('Peak percentage of Fourier limit')
+%         legend('custom','least squares')
     end
 %%
 

@@ -68,12 +68,12 @@ function [solution,val]=make_fourier_fit()
         end
     end
  
-    figure(figNum)
-    figNum = figNum + 1;
-    plot(iter_history,fval_history,'x')
-    xlabel('Iteration #')
-    ylabel('Returned optimum')
-    title(sprintf('Monitoring of the optimization trend curve for order %d.',length(p)-1))
+%     figure(figNum)
+%     figNum = figNum + 1;
+%     plot(iter_history,fval_history,'x')
+%     xlabel('Iteration #')
+%     ylabel('Returned optimum')
+%     title(sprintf('Monitoring of the optimization trend curve for order %d.',length(p)-1))
     
     % Call test_initial_conditions.m
 %     test_initial_conditions(solution)
