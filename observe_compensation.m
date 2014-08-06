@@ -274,8 +274,8 @@
             hold on
             plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
             plot(w_Sk,p_Sk,'b')
-            plot(w_Sk,Pv(opt_best_order,:),'r')
-            plot(w_Sk,P_optv(opt_best_order,:),'g')
+            plot(w_Sk,P,'r')
+            plot(w_Sk,P_opt,'g')
             plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
             hold off
             xlim([lower-0.01 higher+0.01])
