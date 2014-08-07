@@ -55,7 +55,8 @@ function [solution,val]=make_fourier_fit()
     % a comparison with the other phases
     min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x,w_Sk)).^2);
     x0 = [0,0];
-    [s,~] = fminsearch(min_func,x0);
+    options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc2);
+    [s,~] = fminsearch(min_func,x0,options);
     solution(end-1:end) = solution(end-1:end) + s;
     
     function stop=outfunc(x,optimvalues,state)
@@ -66,6 +67,11 @@ function [solution,val]=make_fourier_fit()
           fval_history = [fval_history; fval];
           iter_history = [iter_history; iteration];
         end
+    end
+
+    function stop=outfunc2(x,optimvalues,state)
+        stop = false;
+        fprintf('x: [%2.10f, %2.10f]\n',x(1),x(2))
     end
  
 %     figure(figNum)

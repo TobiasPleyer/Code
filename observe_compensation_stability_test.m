@@ -172,6 +172,20 @@
     % Scale the integrals to allow for comparison with Fourier limit
     E       = E .* sqrt(Int_F ./ Int);
 
+%%
+
+
+%% Here we change the starting polynomial
+
+    fraction = 0.0000001; % promille
+    p_bkp = p;
+    
+for i=1:10
+    rands = (rand([1,order+1])-0.5)*10;
+    rands = rands.*fraction;
+    p = p_bkp + rands.*p_bkp;
+    disp(p)
+    
     % Matlab's builtin `polyfit` uses least square optimization. This might
     % be an inadequate measure for our Fourier transform needs.
     % Thus we have to write our own minimization function and use Matlab's
@@ -182,20 +196,6 @@
     D2_opt = diff(D1_opt) ./ (w_Sk(1)-w_Sk(2));
     D2_opt = filtfilt(B,A,D2_opt);
     D3_opt = diff(D2_opt) ./ (w_Sk(1)-w_Sk(2));
-
-%%
-
-
-%% Here we change the starting polynomial
-
-    fraction = 1; % promille
-    p_bkp = p;
-    
-for i=1:10
-    rands = (rand([1,order+1])-0.5)*10;
-    rands = rands.*fraction;
-    p = p_bkp + rands.*p_bkp;
-    disp(p)
 
     d_opt = p_Sk-P_opt;
     Sk_cplx_opt = sqrt(I_Sk) .* exp(1i*d_opt);
@@ -213,7 +213,7 @@ figure(figNum)
     % Shift it correctly
     t0 = find_closest_idx(t_opt,0);
     E0 = find_closest_idx(abs(E_opt).^2,max(abs(E_opt).^2));
-    plot(t_opt,circshift(abs(E_opt).^2,t0-E0),'c')
+    plot(t_opt,circshift(abs(E_opt).^2,[1,t0-E0]),'c')
     hold off
     title('Achieved compression compared to Fourier limit')
     xlabel('Time[fs]')
@@ -229,7 +229,7 @@ figure(figNum)
         plot([w0 w0],[min(p_Sk) max(p_Sk)],'r')
         hold off
         xlim([lower-0.01 higher+0.01])
-        ylim([min(p_Sk)-2 max(p_Sk)+2])
+%         ylim([min(p_Sk)-2 max(p_Sk)+2])
         title('Taylor approximations for our phase curve')
         xlabel('Omega[1/fs]')
         legend('Intensity','Original Phase','least square','custom')

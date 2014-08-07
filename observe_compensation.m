@@ -390,7 +390,7 @@
         % Shift it correctly
         t0 = find_closest_idx(t_opt,0);
         E0 = find_closest_idx(abs(E_optv(opt_best_order,:)).^2,max(abs(E_optv(opt_best_order,:)).^2));
-        plot(t_opt,circshift(abs(E_optv(opt_best_order,:)).^2,t0-E0),'c')
+        plot(t_opt,circshift(abs(E_optv(opt_best_order,:)).^2,[1,t0-E0]),'c')
         hold off
         title('Achieved compression compared to Fourier limit')
         xlabel('Time[fs]')
