@@ -80,12 +80,12 @@ function [solution,val]=make_fourier_fit()
 
     function stop=outfunc2(x,optimvalues,state)
         stop = false;
-        fprintf('%2.10f with x: [%2.10f, %2.10f]\n',optimvalues.fval,x(1),x(2))
+%         fprintf('%2.10f with x: [%2.10f, %2.10f]\n',optimvalues.fval,x(1),x(2))
     end
 
     function stop=outfunc3(x,optimvalues,state)
         stop = false;
-        fprintf('%2.10f with x: %2.10f\n',optimvalues.fval,x(1))
+%         fprintf('%2.10f with x: %2.10f\n',optimvalues.fval,x(1))
     end
  
 %     figure(figNum)

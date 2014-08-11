@@ -177,7 +177,7 @@ figure(2)
 figure(3)
     plot(w_Sk, d)
     ylim([-50 50])
-    title('Difference between the original phase curve and the found optima')
+    title('')
     xlabel('Omega[1/fs]')
     ylabel('Difference[rad]')
 
