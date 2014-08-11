@@ -30,7 +30,7 @@ function [solution,val]=make_fourier_fit()
     %% Too make function definitions easier we define a bunch of global variables
 
     global w_Sk
-    global p figNum
+    global p p_bkp figNum
     
     %%
 
@@ -53,19 +53,20 @@ function [solution,val]=make_fourier_fit()
     
     % Now we have to adjust the linear and constant term so that we can see
     % a comparison with the other phases
-    min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x,w_Sk)).^2);
+    min_func = @(x)sum((polyval(p_bkp,w_Sk)-polyval(solution,w_Sk)-polyval(x,w_Sk)).^2);
     x0 = [0,0];
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc2);
     [s,~] = fminsearch(min_func,x0,options);
     solution(end-1:end) = solution(end-1:end) + s;
-    % It is necessary to apply the minimization twice because the
-    % compensation is so extrem that Matlab needs a fresh start after the
-    % first run to achieve best results.
-    min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x*1e3,w_Sk)).^2);
-    x0 = [0];
-    options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc3);
-    [s,~] = fminsearch(min_func,x0,options);
-    solution(end) = solution(end) + s*1e3;
+    % This is necessary because the above optimization doesn't work
+    % perfectly. Make sure the curves overlap on a set value.
+%     disp(solution)
+    v1 = polyval(p_bkp,1.83);
+    v2 = polyval(solution,1.83);
+    solution(end) = solution(end) + (v1-v2);
+%     disp(v1)
+%     disp(v2)
+%     disp(solution)
     
     function stop=outfunc(x,optimvalues,state)
         stop = false;

@@ -36,7 +36,7 @@
 
     global I_Sk l_Sk p_Sk w_Sk
     global Int_F
-    global p order figNum
+    global p p_bkp order figNum
     figNum = 1;
     
 %%
