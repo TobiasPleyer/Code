@@ -58,6 +58,14 @@ function [solution,val]=make_fourier_fit()
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc2);
     [s,~] = fminsearch(min_func,x0,options);
     solution(end-1:end) = solution(end-1:end) + s;
+    % It is necessary to apply the minimization twice because the
+    % compensation is so extrem that Matlab needs a fresh start after the
+    % first run to achieve best results.
+    min_func = @(x)sum((polyval(p,w_Sk)-polyval(solution,w_Sk)-polyval(x*1e3,w_Sk)).^2);
+    x0 = [0];
+    options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc3);
+    [s,~] = fminsearch(min_func,x0,options);
+    solution(end) = solution(end) + s*1e3;
     
     function stop=outfunc(x,optimvalues,state)
         stop = false;
@@ -71,7 +79,12 @@ function [solution,val]=make_fourier_fit()
 
     function stop=outfunc2(x,optimvalues,state)
         stop = false;
-        fprintf('x: [%2.10f, %2.10f]\n',x(1),x(2))
+        fprintf('%2.10f with x: [%2.10f, %2.10f]\n',optimvalues.fval,x(1),x(2))
+    end
+
+    function stop=outfunc3(x,optimvalues,state)
+        stop = false;
+        fprintf('%2.10f with x: %2.10f\n',optimvalues.fval,x(1))
     end
  
 %     figure(figNum)

@@ -96,28 +96,6 @@
     l_Sk = l_Sk' * 1e9;
   
 %%
-
-
-%% Filter part
-
-    % It turns out that it is beneficial to apply a low pass filter every
-    % other differentiation in order to avoid the chaotic behaviour of
-    % finite difference differentiation.
-    sampling_freq   = 1/abs(w_Sk(2)-w_Sk(1));
-    order           = 2;
-    cut_off_freq    = 80;
-    peak_to_peak_dB = 0.5;      % This is the Matlab doc recommend first guess
-    stopband_atten  = 20;       % This is the Matlab doc recommend first guess
-                                % The frequencies are always expressed normalized to the Nyquist 
-                                % frequency, i.e. half the sampling rate
-    normed_cutoff   = cut_off_freq / (0.5*sampling_freq);
-                                % The following function call creates the filter fractions given in the
-                                % form [nominators,denominators]
-    [B,A]           = ellip(order,peak_to_peak_dB,stopband_atten,normed_cutoff,'low');
-    %-------------------------filter the data------------------------------
-                                % filtfilt has the big advantage over filter that it operates at a zero phase
-                                % shift, thus allowing to obtain a direct correspondance to the filtered data
-    filtered_p_Sk   = filtfilt(B,A,p_Sk);
     
     % Use this to find our spectral area of interest
     M        = max(I_Sk);
@@ -128,31 +106,22 @@
     higher = max(fit_w_Sk);
     % Now we use these values to include everything in between
     fit_w_Sk = w_Sk(w_Sk >= lower & w_Sk <= higher);
-    fit_p_Sk = filtered_p_Sk(w_Sk >= lower & w_Sk <= higher);
+    fit_p_Sk = p_Sk(w_Sk >= lower & w_Sk <= higher);
     fit_I_Sk = I_Sk(w_Sk >= lower & w_Sk <= higher);
     fit_l_Sk = l_Sk(w_Sk >= lower & w_Sk <= higher);
-    
-    % Make a second Fourier limit to proof that our chosen spectral realm
-    % of interest. The integrals should be the same.
-
-    Sk_cplx   = sqrt(fit_I_Sk) .* exp(1i*0); % This equals constant phase -> Fourier limit
-    lambda    = 2*pi*c ./ (fit_w_Sk*1e15);
-    [fit_t_F,fit_Ek_F] = Speck_Fourier(lambda,Sk_cplx);
-    fit_t_F   = fit_t_F * 1e15;
-    fit_Int_F = abs(trapz(t_F,abs(Ek_F).^2));
-    
+       
 %%
 
 
 %% Taylor part
 
-    D1 = diff(filtered_p_Sk) ./ (w_Sk(1)-w_Sk(2));
-    % Immediately apply our lowpass filter
-    %D1 = filtfilt(B,A,D1);
-    D2 = diff(D1) ./ (w_Sk(1)-w_Sk(2));
-    D2 = filtfilt(B,A,D2);
-    D3 = diff(D2) ./ (w_Sk(1)-w_Sk(2));
-    %D3 = filtfilt(B,A,D3);
+%     D1 = diff(filtered_p_Sk) ./ (w_Sk(1)-w_Sk(2));
+%     % Immediately apply our lowpass filter
+%     %D1 = filtfilt(B,A,D1);
+%     D2 = diff(D1) ./ (w_Sk(1)-w_Sk(2));
+%     D2 = filtfilt(B,A,D2);
+%     D3 = diff(D2) ./ (w_Sk(1)-w_Sk(2));
+%     %D3 = filtfilt(B,A,D3);
 
 %%
 
@@ -192,10 +161,6 @@ for i=1:10
     % built in `fminsearch`.
     [solution,val] = make_fourier_fit();
     P_opt = polyval(solution,w_Sk);
-    D1_opt = diff(P_opt) ./ (w_Sk(1)-w_Sk(2));
-    D2_opt = diff(D1_opt) ./ (w_Sk(1)-w_Sk(2));
-    D2_opt = filtfilt(B,A,D2_opt);
-    D3_opt = diff(D2_opt) ./ (w_Sk(1)-w_Sk(2));
 
     d_opt = p_Sk-P_opt;
     Sk_cplx_opt = sqrt(I_Sk) .* exp(1i*d_opt);
@@ -222,7 +187,7 @@ figure(figNum)
 figure(figNum)
         figNum = figNum + 1;
         hold on
-        plot(w_Sk,I_Sk./max(I_Sk).*max(filtered_p_Sk),'k')
+        plot(w_Sk,I_Sk./max(I_Sk).*max(p_Sk),'k')
         plot(w_Sk,p_Sk,'b')
         plot(w_Sk,P,'r')
         plot(w_Sk,P_opt,'g')
@@ -233,4 +198,10 @@ figure(figNum)
         title('Taylor approximations for our phase curve')
         xlabel('Omega[1/fs]')
         legend('Intensity','Original Phase','least square','custom')
+% figure(figNum)
+%         figNum = figNum + 1;
+%         plot(w_Sk,polyval(p,w_Sk)-polyval(solution,w_Sk))
+% %         ylim([min(p_Sk)-2 max(p_Sk)+2])
+%         title('Difference between Original and optimized phase')
+%         xlabel('Omega[1/fs]')
 end
