@@ -177,7 +177,7 @@ figure(2)
 figure(3)
     plot(w_Sk, d)
     ylim([-50 50])
-    title('')
+    title('Difference between the original phase curve and the found optima')
     xlabel('Omega[1/fs]')
     ylabel('Difference[rad]')
 
@@ -192,7 +192,7 @@ for i=1:10
     % be an inadequate measure for our Fourier transform needs.
     % Thus we have to write our own minimization function and use Matlab's
     % built in `fminsearch`.
-    [solution,val] = make_fourier_fit();
+    [solution,val] = compensation_makeFourierFit();
     P_opt = polyval(solution,w_Sk);
 
     d_opt = p_Sk-P_opt;

@@ -1,4 +1,4 @@
-function [solution,val]=make_fourier_fit()
+function [solution,val]=compensation_makeFourierFit()
     %% ########################################################################
     %%      Function make_fourier_fit
     %
@@ -41,7 +41,7 @@ function [solution,val]=make_fourier_fit()
     iter_history = [];
 
     options = optimset('MaxIter', 1000,'MaxFunEvals',1e5,'OutputFcn',@outfunc);
-    min_func = @(x)observe_compensation_min_Func(x);
+    min_func = @(x)compensation_minFunc(x);
     
     [solution,val] = fminsearch(min_func,p(1:end-2),options);
     fprintf('For order %d we found: %2.2f with start values (%2.3e,%2.3e)\n',length(p)-1,1-val,p(1),p(2))

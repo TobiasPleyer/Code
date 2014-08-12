@@ -1,4 +1,4 @@
-function val=observe_compensation_min_Func(polynomial)
+function val=compensation_minFunc(polynomial)
 
     %% Too make function definitions easier we define a bunch of global variables
 
