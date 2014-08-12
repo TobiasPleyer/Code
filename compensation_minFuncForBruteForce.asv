@@ -14,6 +14,10 @@ function val=compensation_minFuncForBruteForce(polynomial)
     D          = p_Sk - P;
     L          = length(D);
     [w,I,p,l]  = compensation_extendPhaseByZeros(w_Sk,I_Sk,D,L);
+figure(2)
+    plot(w_Sk,D)
+figure(3)
+    plot(w,p)
     Sk_cplx    = sqrt(I) .* exp(1i*p);
     [t,E]      = Speck_Fourier(l,Sk_cplx);
     t          = t * 1e15;
