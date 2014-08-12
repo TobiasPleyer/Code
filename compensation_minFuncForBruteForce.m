@@ -1,15 +1,12 @@
-function val=compensation_minFunc(polynomial)
+function val=compensation_minFuncForBruteForce(polynomial)
 
     %% Too make function definitions easier we define a bunch of global variables
 
     global I_Sk l_Sk p_Sk w_Sk
     global Int_F
-
+ 
     %%
-
-    
-    %%
-    P       = polyval([polynomial 0 0],w_Sk);
+    P       = polyval(polynomial,w_Sk);
     D       = p_Sk - P;
     Sk_cplx = sqrt(I_Sk) .* exp(1i*D);
     [t,E]   = Speck_Fourier(l_Sk'.*1e-9,Sk_cplx);

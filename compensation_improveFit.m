@@ -1,4 +1,4 @@
-function [solution,val]=compensation_makeFourierFit()
+function [solution,val]=compensation_improveFit()
     %% ########################################################################
     %%      Function make_fourier_fit
     %

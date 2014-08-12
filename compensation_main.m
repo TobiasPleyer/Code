@@ -19,6 +19,9 @@
 %            interest in order to avoid noise contribution. (15.07.2014)
 %      v3.0: Concluded a series of test and code changes and ended up with
 %            this running and stable version.
+%      v4.0: Modularized the main code to make heavy use of small
+%            specialized function calls. This ensures readability,
+%            flexibility and maintainability. (12.08.2014)
 %
 %% ########################################################################
 
@@ -36,7 +39,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 if(~isdeployed)
     cd(fileparts(which(mfilename)));
 end
-do_plot = true;
+do_plot = false;
 max_order = 10;
 orders = 2:max_order;
 %     orders = 4;
@@ -77,6 +80,7 @@ opt_best_value = 0;
 peaks          = zeros(1,max_order);
 best_order     = 0;
 best_value     = 0;
+
 for order=orders
     p = polyfit(fit_w_Sk,fit_p_Sk,order);
     P = polyval(p,w_Sk);
@@ -85,7 +89,7 @@ for order=orders
     % be an inadequate measure for our Fourier transform needs.
     % Thus we have to write our own minimization function and use Matlab's
     % built in `fminsearch`.
-    [solution,val]         = compensation_makeFourierFit();
+    [solution,val]         = compensation_improveFit();
     P_opt                  = polyval(solution,w_Sk);
     [D1_opt,D2_opt,D3_opt] = compensation_calcDevs(P_opt,w_Sk,B,A);
     Pv(order,:)            = P;

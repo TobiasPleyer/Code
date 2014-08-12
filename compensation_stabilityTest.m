@@ -192,7 +192,7 @@ for i=1:10
     % be an inadequate measure for our Fourier transform needs.
     % Thus we have to write our own minimization function and use Matlab's
     % built in `fminsearch`.
-    [solution,val] = compensation_makeFourierFit();
+    [solution,val] = compensation_improveFit();
     P_opt = polyval(solution,w_Sk);
 
     d_opt = p_Sk-P_opt;
