@@ -36,7 +36,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 if(~isdeployed)
     cd(fileparts(which(mfilename)));
 end
-do_plot = true;
+do_plot = false;
 max_order = 10;
 orders = 2:max_order;
 %     orders = 4;
@@ -50,7 +50,7 @@ figNum = 1;
 
 [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData();
 
-[Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
+Int_F                                 = compensation_calcFourierlimit(I_Sk,l_Sk);
 
 [l0,w0,w_Sk,I_Sk,p_Sk,l_Sk]           = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
 
@@ -60,7 +60,7 @@ filtered_p_Sk                         = filtfilt(B,A,p_Sk);
 
 [fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,filtered_p_Sk);
 
-[D1,D2,D3]                            = compensation_calcDevs(filtered_p_Sk,w_Sk,B,A);
+[D1,D2,D3]                            = compensation_calcDevs(filtered_p_Sk,w_Sk);
 
 %% Fit Polynomials to the phase and plot the results depending on degree
 
@@ -87,7 +87,7 @@ for order=orders
     % built in `fminsearch`.
     [solution,val]         = compensation_makeFourierFit();
     P_opt                  = polyval(solution,w_Sk);
-    [D1_opt,D2_opt,D3_opt] = compensation_calcDevs(P_opt,w_Sk,B,A);
+    [D1_opt,D2_opt,D3_opt] = compensation_calcDevs(P_opt,w_Sk);
     Pv(order,:)            = P;
     P_optv(order,:)        = P_opt;
     D2_optv(order,:)       = D2_opt;
@@ -110,19 +110,7 @@ for order=orders
         best_value = max(abs(E).^2)*100;
     end
 
-    compensation_plot2(w0    ...
-                      ,t_F   ...
-                      ,Ek_F  ...
-                      ,t_opt ...
-                      ,E_opt ...
-                      ,t     ...
-                      ,E     ...
-                      ,w_Sk  ...
-                      ,I_Sk  ...
-                      ,p_Sk  ...
-                      ,filtered_p_Sk ...
-                      ,P     ...
-                      ,P_opt)
+    compensation_plot2(t_F,Ek_F,t_opt,E_opt,t,E,w_Sk,I_Sk,p_Sk,P,P_opt)
 end
 
 if do_plot
@@ -133,7 +121,6 @@ if do_plot
                      ,w_Sk ...
                      ,I_Sk ...
                      ,p_Sk ...
-                     ,filtered_p_Sk ...
                      ,D1   ...
                      ,D2   ...
                      ,D3   ...
