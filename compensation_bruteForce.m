@@ -39,13 +39,13 @@ figNum = 1;
 
 [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
 
-[l0,w0,w_Sk,I_Sk,p_Sk,l_Sk]           = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
+[l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
 
 [B,A]                                 = compensation_makeFilter(w_Sk);
 
 filtered_p_Sk                         = filtfilt(B,A,p_Sk);
 
-[fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,filtered_p_Sk);
+[fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,p_Sk);
 
 [D1,D2,D3]                            = compensation_calcDevs(filtered_p_Sk,w_Sk,B,A);
 
@@ -56,22 +56,48 @@ filtered_p_Sk                         = filtfilt(B,A,p_Sk);
 p0 = polyfit(fit_w_Sk,fit_p_Sk,3);
 
 % Prepare the range
-orda = floor(log10(p0(1)));
-ordb = floor(log10(p0(2)));
+ord_a = floor(log10(abs(p0(1))));
+ord_b = floor(log10(abs(p0(2))));
 
 % Generate the coefficients
-%p = ...
+n_a    = 1*10^(ord_b+3);
+n_a    = 1000;
+min_a  = 1*10^(ord_a-3);
+max_a  = 9*10^(ord_a+1);
+step_a = (max_a - min_a)/n_a;
 
-% Calculate the value
-val = compensation_minFuncForBruteForce(p);
+n_b    = 1*10^(ord_b+3);
+n_b    = 1000;
+min_b  = 1*10^(ord_b-3);
+max_b  = 9*10^(ord_b+1);
+step_b = (max_b - max_b)/n_b;
 
-% Store values for later plotting
-% a(*) = a;
-% b(*) = b;
-% v(*) = v;
+% Reserve arrays for storage
+A = linspace(min_a,max_a,n_a);
+B = linspace(min_b,max_b,n_b);
+V = zeros(n_b,n_a);
 
-% Make a 2D plot to visualize the result
+% Enter a loop to brute force the solutions
+N = 1;
+for a=A
+    for b=B
+        p = [a b 0 0];
+        % Calculate the value
+        val = compensation_minFuncForBruteForce(p);
+        V(N) = val;
+        if mod(N,1000)==0
+            fprintf('N: %d\n',N)
+        end
+        N = N + 1;
+    end
+end
 
+% For longer runs to save the data for later revision
+save('Variables/run03')
+% % Make a 3D surf plot to visualize the result
+% h = surf(A,B,V);
+% % Necessary, or the lines of the grid will overlay the colors
+% set(h,'LineStyle','none')
 
 
 
