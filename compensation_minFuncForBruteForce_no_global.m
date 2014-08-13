@@ -6,7 +6,6 @@ function val=compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F)
     % Since we cannot invent a phase in this spectral region, a common
     % trick is to add zeros.
     D          = p - P;
-    disp(min(abs(D(:))))
     L          = length(D);
     [w,I,D,l]  = compensation_extendPhaseByZeros(w,I,D,L);
     Sk_cplx    = sqrt(I) .* exp(1i*D);

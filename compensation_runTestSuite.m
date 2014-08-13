@@ -138,10 +138,6 @@ fprintf('      > 2D\n')
 % Enter a loop to brute force the solutions
 p  = 1e6*(w-w0).^3+8e4*(w-w0).^2;
 N = 1;
-a = 1e6;
-b = -3*a*w0 + 8e4;
-c = 3*a*w0^2 - 2*8e4*w0;
-d = -a*w0^3 + 8e4*w0^2;
 
 figure(figNum)
     figNum = figNum + 1;
@@ -154,18 +150,18 @@ figure(figNum)
 
 % Reserve arrays for storage
 min_a = 5e5;
-max_a = 15e5;
-n_a   = 20;
-min_b = -8e6;
-max_b = -3e6;
-n_b   = 20;
+max_a = 5e6;
+n_a   = 50;
+min_b = 1e4;
+max_b = 1e5;
+n_b   = 50;
 A = linspace(min_a,max_a,n_a);
 B = linspace(min_b,max_b,n_b);
 V = zeros(n_b,n_a);
 
 for a=A
     for b=B
-        polynomial = [a b c d];
+        polynomial = compensation_calcPoly3([a b],w0);
         % Calculate the value
         val = compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F);
         V(N) = val;
