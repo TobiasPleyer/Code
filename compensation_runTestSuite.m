@@ -103,7 +103,7 @@ figure(figNum)
 % TEST 3: See if our brute force ansatz works with our simple sample phase
 fprintf('TEST 3: Approximation of the phase curve via brute force\n')
 
-fprintf('------> 1D\n')
+fprintf('      > 1D\n')
 p = 80000*(w-w0).^2;
 % Reserve arrays for storage
 min_a = 10000;
@@ -115,56 +115,72 @@ V = zeros(1,n_a);
 % Enter a loop to brute force the solutions
 N = 1;
 % CAREFUL: OUR POLYNOMIAL IS 1e4(w^2 - 2ww0 + w0^2) --> [8e4 -3.6576*8e4 3.3445*8e4]
+a = 80000;
 b = -2*w0*8e4;
 c = w0^2*8e4;
-figure(5)
-hold on
 for a=A
-    poly = [a b c];
-    plot(w,polyval(poly,w))
+    polynomial = [a b c];
     % Calculate the value
-    val = compensation_minFuncForBruteForce_no_global(poly,w,I,p,Int_F);
+    val = compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F);
     V(N) = val;
     if mod(N,1000)==0
         fprintf('N: %d\n',N)
     end
     N = N + 1;
 end
-hold off
 
 figure(figNum)
     figNum = figNum + 1;
     plot(V)
 
-fprintf('------> 2D\n')
-% p  = 5000*(w-w0).^3+80000*(w-w0).^2;
-% figure(figNum)
-%     figNum = figNum + 1;
-%     [AX,H1,H2] = plotyy(w,I,w,p);
-%     set(AX,'xlim',[w_low w_high]);
-%     set(get(AX(1),'Ylabel'),'String','arbitrary units')
-%     set(get(AX(2),'Ylabel'),'String','[rad]')
-%     xlabel('omega [1/fs]')
-% 
-% % Reserve arrays for storage
-% A = linspace(min_a,max_a,n_a);
-% B = linspace(min_b,max_b,n_b);
-% V = zeros(n_b,n_a);
-% 
-% % Enter a loop to brute force the solutions
-% N = 1;
-% for a=A
-%     for b=B
-%         p = [a b 0 0];
-%         % Calculate the value
-%         val = compensation_minFuncForBruteForce(p);
-%         V(N) = val;
-%         if mod(N,1000)==0
-%             fprintf('N: %d\n',N)
-%         end
-%         N = N + 1;
-%     end
-% end
+fprintf('      > 2D\n')
+
+% Enter a loop to brute force the solutions
+p  = 1e6*(w-w0).^3+8e4*(w-w0).^2;
+N = 1;
+a = 1e6;
+b = -3*a*w0 + 8e4;
+c = 3*a*w0^2 - 2*8e4*w0;
+d = -a*w0^3 + 8e4*w0^2;
+
+figure(figNum)
+    figNum = figNum + 1;
+    [AX,H1,H2] = plotyy(w,I,w,p);
+    set(AX,'xlim',[w_low w_high]);
+    set(get(AX(1),'Ylabel'),'String','arbitrary units')
+    set(get(AX(2),'Ylabel'),'String','[rad]')
+    xlabel('omega [1/fs]')
+    title('New phase with p = 5000*(w-w0).^3+80000*(w-w0).^2')
+
+% Reserve arrays for storage
+min_a = 5e5;
+max_a = 15e5;
+n_a   = 20;
+min_b = -8e6;
+max_b = -3e6;
+n_b   = 20;
+A = linspace(min_a,max_a,n_a);
+B = linspace(min_b,max_b,n_b);
+V = zeros(n_b,n_a);
+
+for a=A
+    for b=B
+        polynomial = [a b c d];
+        % Calculate the value
+        val = compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F);
+        V(N) = val;
+        if mod(N,1000)==0
+            fprintf('N: %d\n',N)
+        end
+        N = N + 1;
+    end
+end
+
+figure(figNum)
+    figNum = figNum + 1;
+    h = surf(A,B,V);
+    % Necessary, or the lines of the grid will overlay the colors
+    set(h,'LineStyle','none')
     
     
     

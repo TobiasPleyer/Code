@@ -10,4 +10,5 @@ function [w_ext,I_ext,p_ext,l_ext]=compensation_extendPhaseByZeros(w,I,p,N)
     
     c          = 299792458;
     l_ext      = 1e9.*2*pi*c ./ (w_ext*1e15);
+    l_ext      = fliplr(l_ext);
 end
