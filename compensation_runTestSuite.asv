@@ -1,0 +1,9 @@
+function compensation_runTestSuite()
+    c  = 299792458;
+    l0 = 1030;
+    w0 = 1e-15*2*pi*c / (l0*1e-9);
+    w  = 1.82:0.001:1.84;
+    p  = 10000*(w-w0).^2; 
+    I  = 2*exp(-(w-w0).^2/1e-5);
+    
+end

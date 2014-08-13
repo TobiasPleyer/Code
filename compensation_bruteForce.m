@@ -61,13 +61,13 @@ ord_b = floor(log10(abs(p0(2))));
 
 % Generate the coefficients
 n_a    = 1*10^(ord_b+3);
-n_a    = 10;
+n_a    = 10000;
 min_a  = 1*10^(ord_a-3);
 max_a  = 9*10^(ord_a+1);
 step_a = (max_a - min_a)/n_a;
 
 n_b    = 1*10^(ord_b+3);
-n_b    = 10;
+n_b    = 10000;
 min_b  = 1*10^(ord_b-3);
 max_b  = 9*10^(ord_b+1);
 step_b = (max_b - max_b)/n_b;
