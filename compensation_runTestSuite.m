@@ -1,3 +1,11 @@
+clc;    % Clear the command window.
+close all;  % Close all figures (except those of imtool.)
+clear;  % Erase all existing variables. Or clearvars if you want.
+format shortg;
+warning off
+%format compact;
+set(0,'DefaultFigureWindowStyle','docked')
+
 
 fprintf('---------RUNNING TEST SUITE---------\n')
 fprintf('l0: 1030 nm\n')
@@ -20,10 +28,11 @@ w_inc  = 0.0001;
 w  = w_low:w_inc:w_high;
 l  = 1e9*    2*pi*c ./ (w*1e15);
 l  = fliplr(l);
-p1  = 50000*(w-w0).^2;
-p2  = 80000*(w-w0).^2;
-p3  = 110000*(w-w0).^2;
+p  = 80000*(w-w0).^2;
 I  = exp(-(w-w0).^2/1e-5);
+
+[Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I,l);
+[Int,t,E]        = compensation_calcFourierlimit(I,l,p);
 
 figure(figNum)
     figNum = figNum + 1;
@@ -36,7 +45,9 @@ figure(figNum)
 % TEST 1: See how our Fourier transformation performs.
 fprintf('TEST 1: Fourier Trafo\n')
 
-[Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I,l);
+p1  = 50000*(w-w0).^2;
+p2  = 80000*(w-w0).^2;
+p3  = 110000*(w-w0).^2;
 [Int1,t1,E1] = compensation_calcFourierlimit(I,l,p1);
 [Int2,t2,E2] = compensation_calcFourierlimit(I,l,p2);
 [Int3,t3,E3] = compensation_calcFourierlimit(I,l,p3);
@@ -91,10 +102,106 @@ figure(figNum)
     
 % TEST 3: See if our brute force ansatz works with our simple sample phase
 fprintf('TEST 3: Approximation of the phase curve via brute force\n')
+
+fprintf('------> 1D\n')
+p = 80000*(w-w0).^2;
+% Reserve arrays for storage
+min_a = 10000;
+max_a = 100000;
+n_a   = 10;
+A = linspace(min_a,max_a,n_a);
+V = zeros(1,n_a);
+
+% Enter a loop to brute force the solutions
+N = 1;
+% CAREFUL: OUR POLYNOMIAL IS 1e4(w^2 - 2ww0 + w0^2) --> [8e4 -3.6576*8e4 3.3445*8e4]
+b = -2*w0*8e4;
+c = w0^2*8e4;
+figure(5)
+hold on
+for a=A
+    poly = [a b c];
+    plot(w,polyval(poly,w))
+    % Calculate the value
+    val = compensation_minFuncForBruteForce_no_global(poly,w,I,p,Int_F);
+    V(N) = val;
+    if mod(N,1000)==0
+        fprintf('N: %d\n',N)
+    end
+    N = N + 1;
+end
+hold off
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(V)
+
+fprintf('------> 2D\n')
+% p  = 5000*(w-w0).^3+80000*(w-w0).^2;
+% figure(figNum)
+%     figNum = figNum + 1;
+%     [AX,H1,H2] = plotyy(w,I,w,p);
+%     set(AX,'xlim',[w_low w_high]);
+%     set(get(AX(1),'Ylabel'),'String','arbitrary units')
+%     set(get(AX(2),'Ylabel'),'String','[rad]')
+%     xlabel('omega [1/fs]')
+% 
+% % Reserve arrays for storage
+% A = linspace(min_a,max_a,n_a);
+% B = linspace(min_b,max_b,n_b);
+% V = zeros(n_b,n_a);
+% 
+% % Enter a loop to brute force the solutions
+% N = 1;
+% for a=A
+%     for b=B
+%         p = [a b 0 0];
+%         % Calculate the value
+%         val = compensation_minFuncForBruteForce(p);
+%         V(N) = val;
+%         if mod(N,1000)==0
+%             fprintf('N: %d\n',N)
+%         end
+%         N = N + 1;
+%     end
+% end
     
     
     
-    
+
+
+
+
+
+
+
+
+
+
+% fprintf('------> 1D\n')
+% % Reserve arrays for storage
+% min_a = 10000;
+% max_a = 100000;
+% n_a   = 1000;
+% A = linspace(min_a,max_a,n_a);
+% V = zeros(1,n_a);
+% 
+% % Enter a loop to brute force the solutions
+% N = 1;
+% for a=A
+%     poly = [a 0 0];
+%     % Calculate the value
+%     val = compensation_minFuncForBruteForce_no_global(poly,w,I,p,Int_F);
+%     V(N) = val;
+%     if mod(N,1000)==0
+%         fprintf('N: %d\n',N)
+%     end
+%     N = N + 1;
+% end
+% 
+% figure(figNum)
+%     figNum = figNum + 1;
+%     plot(V)
     
     
     
