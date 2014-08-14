@@ -42,7 +42,7 @@ end
 do_plot = false;
 max_order = 10;
 orders = 2:max_order;
-%     orders = 4;
+    orders = 4;
 
 global I_Sk l_Sk p_Sk w_Sk
 global Int_F
@@ -97,8 +97,8 @@ for order=orders
     D2_optv(order,:)       = D2_opt;
     D3_optv(order,:)       = D3_opt;
 
-    [t,E]                  = compensation_calcCompression(p_Sk,Pv(order,:),I_Sk,l_Sk,Int_F);
-    [t_opt,E_opt]          = compensation_calcCompression(p_Sk,P_optv(order,:),I_Sk,l_Sk,Int_F);
+    [t,E]                  = compensation_calcCompression(p_Sk,P,I_Sk,fliplr(l_Sk'),Int_F);
+    [t_opt,E_opt]          = compensation_calcCompression(p_Sk,P_opt,I_Sk,fliplr(l_Sk'),Int_F);
     
     fprintf('Order %d: The optimization for the whole range leads to %2.2f percent of the Fourier limit.\n',order,max(abs(E_opt).^2)*100)
     Ev(order,:)            = E;
