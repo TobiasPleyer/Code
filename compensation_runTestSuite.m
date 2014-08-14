@@ -14,9 +14,9 @@ fprintf('I : exp(-(w-w0).^2/1e-5)\n')
 fprintf('p : 80000*(w-w0).^2\n')
 fprintf('\n')
 figNum = 1;
-c  = 299792458;
+GD  = 299792458;
 l0 = 1030;
-w0 = 1e-15*  2*pi*c / (l0*1e-9);
+w0 = 1e-15*  2*pi*GD / (l0*1e-9);
 
 % TEST 0: Starting conditions
 fprintf('\n')
@@ -26,7 +26,7 @@ w_low  = 1.82;
 w_high = 1.84;
 w_inc  = 0.0001;
 w  = w_low:w_inc:w_high;
-l  = 1e9*    2*pi*c ./ (w*1e15);
+l  = 1e9*    2*pi*GD ./ (w*1e15);
 l  = fliplr(l);
 p  = 80000*(w-w0).^2;
 I  = exp(-(w-w0).^2/1e-5);
@@ -107,20 +107,20 @@ fprintf('TEST 3: Approximation of the phase curve via brute force\n')
 fprintf('      > 1D\n')
 p = 80000*(w-w0).^2;
 % Reserve arrays for storage
-min_a = 10000;
-max_a = 100000;
+min_TOD = 10000;
+max_TOD = 100000;
 n_a   = 10;
-A = linspace(min_a,max_a,n_a);
+A = linspace(min_TOD,max_TOD,n_a);
 V = zeros(1,n_a);
 
 % Enter a loop to brute force the solutions
 N = 1;
 % CAREFUL: OUR POLYNOMIAL IS 1e4(w^2 - 2ww0 + w0^2) --> [8e4 -3.6576*8e4 3.3445*8e4]
-a = 80000;
-b = -2*w0*8e4;
-c = w0^2*8e4;
-for a=A
-    polynomial = [a b c];
+TOD = 80000;
+GDD = -2*w0*8e4;
+GD = w0^2*8e4;
+for TOD=A
+    polynomial = [TOD GDD GD];
     % Calculate the value
     val = compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F);
     V(N) = val;
@@ -151,19 +151,19 @@ figure(figNum)
     title('Test 3: New phase with p = 5000*(w-w0).^3+80000*(w-w0).^2')
 
 % Reserve arrays for storage
-min_a = 5e5;
-max_a = 5e6;
+min_TOD = 5e5;
+max_TOD = 5e6;
 n_a   = 50;
-min_b = 1e4;
-max_b = 1e5;
+min_GDD = 1e4;
+max_GDD = 1e5;
 n_b   = 50;
-A = linspace(min_a,max_a,n_a);
-B = linspace(min_b,max_b,n_b);
+A = linspace(min_TOD,max_TOD,n_a);
+B = linspace(min_GDD,max_GDD,n_b);
 V = zeros(n_b,n_a);
 
-for a=A
-    for b=B
-        polynomial = compensation_calcPoly3([a b],w0);
+for TOD=A
+    for GDD=B
+        polynomial = compensation_calcPoly3([TOD GDD],w0);
         % Calculate the value
         val = compensation_minFuncForBruteForce_no_global(polynomial,w,I,p,Int_F);
         V(N) = val;
@@ -221,26 +221,27 @@ figure(figNum)
     legend('Original','Fit range','Intensity')
     title('Test 4: Visualization of the range we use to find our fit polynomial')
 
-polynomial = polyfit(fit_w_Sk,fit_p_Sk,3);
-O3_fit     = polyval(polynomial,fit_w_Sk);
+polynomial = polyfit(fit_w_Sk,fit_p_Sk,4);
+O4_fit     = polyval(polynomial,fit_w_Sk);
     
 figure(figNum)
     figNum = figNum + 1;
     plot(fit_w_Sk,fit_p_Sk,'b')
     hold on
     plot(fit_w_Sk,fit_I_Sk*40-20,'g')
-    plot(fit_w_Sk,O3_fit,'r')
+    plot(fit_w_Sk,O4_fit,'r')
     hold off
     xlabel('omega [1/fs]')
     ylabel('[rad]')
     legend('Original','Intensity','O(3) fit')
-    title('Test 4: The resulting least square fit polynomial of degree 3')
+    title('Test 4: The resulting least square fit polynomial of degree 4')
     
 % Find the correct coefficients
-d = polyval(polynomial,w0);
-c = polyval(polyder(polynomial),w0);
-b = polyval(polyder(polyder(polynomial)),w0) / 2;
-a = polyval(polyder(polyder(polyder(polynomial))),w0) / 6;
+C = polyval(polynomial,w0);
+GD = polyval(polyder(polynomial),w0);
+GDD = polyval(polyder(polyder(polynomial)),w0) / 2;
+TOD = polyval(polyder(polyder(polyder(polynomial))),w0) / 6;
+FOD = polyval(polyder(polyder(polyder(polyder(polynomial)))),w0) / 24;
 
 % One option
 % ord_a = floor(log10(abs(a)));
@@ -251,26 +252,24 @@ a = polyval(polyder(polyder(polyder(polynomial))),w0) / 6;
 % B = sign(b).*logspace(ord_b-1,ord_b+1,n_b);
 % V = zeros(n_b,n_a);
 
-ord_a = floor(log10(abs(a)));
-min_a = a-100*10^(floor(log10(abs(a)))-1);
-max_a = a+100*10^(floor(log10(abs(a)))-1);
-min_a = 0-100*10^(floor(log10(abs(a)))-1);
-max_a = 0+100*10^(floor(log10(abs(a)))-1);
+ord_TOD = floor(log10(abs(TOD)));
+min_TOD = TOD-1*10^(floor(log10(abs(TOD)))-1);
+max_TOD = TOD+1*10^(floor(log10(abs(TOD)))-1);
 n_a   = 50;
-ord_b = floor(log10(abs(b)));
-min_b = b-100*10^(floor(log10(abs(b)))-1);
-max_b = b+100*10^(floor(log10(abs(b)))-1);
+ord_GDD = floor(log10(abs(GDD)));
+min_GDD = GDD-1*10^(floor(log10(abs(GDD)))-1);
+max_GDD = GDD+1*10^(floor(log10(abs(GDD)))-1);
 n_b   = 50;
-A = linspace(min_a,max_a,n_a);
-B = linspace(min_b,max_b,n_b);
+A = linspace(min_TOD,max_TOD,n_a);
+B = linspace(min_GDD,max_GDD,n_b);
 V = zeros(n_b,n_a);
 
 figure(figNum)
     figNum = figNum + 1;
     hold on
-for a2=A
-    for b2=B
-        polyn = [a2 b2 c d];
+for TOD2=A
+    for GDD2=B
+        polyn = [FOD TOD2 GDD2 GD C];
         plot(fit_w_Sk,polyval(polyn,fit_w_Sk-w0))
     end
 end
@@ -286,24 +285,25 @@ end
 figure(figNum)
     figNum = figNum + 1;
     hold on
-for a2=A
-    for b2=B
-        polyn = [a2 b2 c d];
+for TOD2=A
+    for GDD2=B
+        polyn = [FOD TOD2 GDD2 GD C];
         plot(fit_w_Sk,fit_p_Sk-polyval(polyn,fit_w_Sk-w0))
     end
 end
     h1 = plot(fit_w_Sk,fit_p_Sk-polyval(polyn,fit_w_Sk-w0));
     h2 = plot(fit_w_Sk,zeros(size(fit_w_Sk)),'r');
-    legend([h1 h2],'Brute force','Zero line')
+    h3 = plot(fit_w_Sk,fit_p_Sk-polyval([FOD TOD GDD GD C],fit_w_Sk-w0),'g');
+    legend([h1 h2 h3],'Brute force','Zero line','Least square')
     xlabel('omega [1/fs]')
     ylabel('[rad]')
     title('View on the differences we get when subtracting the estimate from the original')
     hold off
     
 N = 1;
-for a2=A
-    for b2=B
-        polyn = [a2 b2 c d];
+for TOD2=A
+    for GDD2=B
+        polyn = [FOD TOD2 GDD2 GD C];
         % Calculate the value
         val = compensation_minFuncForBruteForce_no_global2(polyn,w0,w,I,p,Int_F);
         V(N) = val;
