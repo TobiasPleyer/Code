@@ -33,6 +33,7 @@ I  = exp(-(w-w0).^2/1e-5);
 
 [Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I,l);
 [Int,t,E]        = compensation_calcFourierlimit(I,l,p);
+factor = Int_F/Int;
 
 figure(figNum)
     figNum = figNum + 1;
@@ -45,6 +46,7 @@ figure(figNum)
 
 % TEST 1: See how our Fourier transformation performs.
 fprintf('TEST 1: Fourier Trafo\n')
+fprintf('p1 = 50000*(w-w0).^2\np2 = 80000*(w-w0).^2\np3 = 110000*(w-w0).^2;\n')
 
 p1  = 50000*(w-w0).^2;
 p2  = 80000*(w-w0).^2;
@@ -52,15 +54,17 @@ p3  = 110000*(w-w0).^2;
 [Int1,t1,E1] = compensation_calcFourierlimit(I,l,p1);
 [Int2,t2,E2] = compensation_calcFourierlimit(I,l,p2);
 [Int3,t3,E3] = compensation_calcFourierlimit(I,l,p3);
-factor = Int_F/Int;
+factor1 = Int_F/Int1;
+factor2 = Int_F/Int2;
+factor3 = Int_F/Int3;
 
 figure(figNum)
     figNum = figNum + 1;
     plot(t_F,abs(Ek_F).^2,'g')
     hold on
-    plot(t1,abs(E1).^2.*factor,'r')
-    plot(t2,abs(E2).^2.*factor,'b')
-    plot(t3,abs(E3).^2.*factor,'m')
+    plot(t1,abs(E1).^2.*factor1,'r')
+    plot(t2,abs(E2).^2.*factor2,'b')
+    plot(t3,abs(E3).^2.*factor3,'m')
     hold off
     xlim([-2000 2000])
     xlabel('time [fs]')
@@ -203,7 +207,7 @@ figure(figNum)
     figNum = figNum + 1;
     [AX,H1,H2] = plotyy(w_Sk,I_Sk,w_Sk,p_Sk);
     set(AX,'xlim',[w_Sk(1) w_Sk(end)]);
-    legend([H1;H2],'Intensity','Spectrum')
+    legend([H1;H2],'Spectrum','Phase')
     set(get(AX(1),'Ylabel'),'String','arbitrary units')
     set(get(AX(2),'Ylabel'),'String','[rad]')
     xlabel('omega [1/fs]')
@@ -218,7 +222,7 @@ figure(figNum)
     hold off
     xlabel('omega [1/fs]')
     ylabel('[rad]')
-    legend('Original','Fit range','Intensity')
+    legend('Original','Fit range','Spectrum')
     title('Test 4: Visualization of the range we use to find our fit polynomial')
 
 polynomial = polyfit(fit_w_Sk,fit_p_Sk,4);
@@ -233,7 +237,7 @@ figure(figNum)
     hold off
     xlabel('omega [1/fs]')
     ylabel('[rad]')
-    legend('Original','Intensity','O(3) fit')
+    legend('Original','Spectrum','O(3) fit')
     title('Test 4: The resulting least square fit polynomial of degree 4')
     
 % Find the correct coefficients
@@ -320,6 +324,59 @@ figure(figNum)
     % Necessary, or the lines of the grid will overlay the colors
     set(h,'LineStyle','none')
     title('Test 4: Calcultated values of our minimization function 2D case')
+    
+% TEST 5: Comparing results with previous resluts from older functions
+fprintf('TEST 5: Varify with results from older results\n')
+
+C_main = -2.4188;
+GD_main = 1947;
+GDD_main = 41109;
+TOD_main = -8.374e+05;
+FOD_main = -1.8093e+07;
+
+phase_main = polyval([FOD_main TOD_main GDD_main GD_main C_main],w_Sk-w0);
+
+fprintf('From our old function we found:\nC_main = -2.4188\nGD_main = 1947\nGDD_main = 41109\nTOD_main = -8.374e+05\nFOD_main = -1.8093e+07\n')
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(w_Sk,p_Sk)
+    hold on
+    plot(w_Sk,phase_main,'r')
+    hold off
+    xlabel('omega [1/fs]')
+    ylabel('[rad]')
+    legend('Original','Old found optimum')
+    title('Test 5: The resulting optimum fit polynomial of degree 4 from my old function')
+    
+figure(figNum)
+    figNum = figNum + 1;
+    plot(w_Sk,p_Sk-phase_main)
+    hold on
+    plot(w_Sk,I_Sk*125,'g')
+    hold off
+    xlabel('omega [1/fs]')
+    ylabel('[rad]')
+    legend('Difference','Spectrum')
+    title('Test 5: The resulting difference when we subtract the old optimum from the original')
+    
+[Int_main,t_main,E_main] = compensation_calcFourierlimit(I_Sk,fliplr(l_Sk'),p_Sk-phase_main);
+factor = Int_F/Int_main;
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(t_F,abs(Ek_F).^2,'g')
+    hold on
+    plot(t_main,abs(E_main).^2.*factor,'r')
+    hold off
+    xlim([-2000 2000])
+    xlabel('time [fs]')
+    ylabel('relative units')
+    legend('Fourier limit','Compressed from old optimum')
+    title('Test 5: Observation of the quality of compression on the pulse')
+    
+val = compensation_minFuncForBruteForce_no_global2([FOD_main TOD_main GDD_main GD_main C_main],w0,w_Sk,I_Sk,p_Sk,Int_F);
+fprintf('\nFound compression value: %2.2f%% of fourier limit\n',(1-val)*100)
    
     
 
