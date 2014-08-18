@@ -408,12 +408,6 @@ TOD = -8e+05;
 GDD = 4e04;
 GD = 1947;
 C = -2.4188;
-fprintf('\nWe start with the following values:\n')
-fprintf('FOD: %2.2e\n',FOD)
-fprintf('TOD: %2.2e\n',TOD)
-fprintf('GDD: %2.2e\n',GDD)
-fprintf('GD: %2.2e\n',GD)
-fprintf('C: %2.2e\n',C)
 
 ord_TOD = floor(log10(abs(TOD)));
 min_TOD = TOD-5*10^(floor(log10(abs(TOD)))-1);
@@ -427,7 +421,14 @@ A = linspace(min_TOD,max_TOD,n_a);
 B = linspace(min_GDD,max_GDD,n_b);
 V = zeros(n_b,n_a);
 
-fprintf('Using the following range:\n')
+fprintf('\nWe start with the following values:\n')
+fprintf('FOD: %2.2e\n',FOD)
+fprintf('TOD: [%2.2e  %2.2e]\n',min_TOD,max_TOD)
+fprintf('GDD: [%2.2e  %2.2e]\n',min_GDD,max_GDD)
+fprintf('GD: %2.2e\n',GD)
+fprintf('C: %2.2e\n',C)
+
+fprintf('Using the following calculations:\n')
 fprintf(['ord_TOD = floor(log10(abs(TOD)))\n' ...
 'min_TOD = TOD-5*10^(floor(log10(abs(TOD)))-1)\n' ...
 'max_TOD = TOD+5*10^(floor(log10(abs(TOD)))-1)\n' ...
@@ -499,3 +500,61 @@ figure(figNum)
     ylabel('GDD','fontweight','bold','fontsize',16);
     zlabel('Achieved minimum value (1-max(abs(E))','fontweight','bold','fontsize',16);
     title('Test 6: Calcultated values of our minimization function 2D case','fontweight','bold','fontsize',16);
+    
+% TEST 7: Search for an optimal solution
+fprintf('TEST 7: Search for an optimal solution using optimization algorithms\n')
+
+fprintf('\nWe start with the following values:\n')
+fprintf('FOD: %2.2e\n',FOD)
+fprintf('TOD: %2.2e\n',TOD)
+fprintf('GDD: %2.2e\n',GDD)
+fprintf('GD: %2.2e\n',GD)
+fprintf('C: %2.2e\n',C)
+
+options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+min_func = @(x)compensation_minFuncForBruteForce_no_global2([FOD x(1) x(2) GD C],w0,w_Sk,I_Sk,p_Sk,Int_F);
+
+[solution,val] = fminsearch(min_func,[TOD GDD],options);
+
+fprintf('With the new optimization we find a value of %2.2f%%\n',(1-val)*100)
+fprintf('The found values for TOD and GDD are:\n')
+fprintf('TOD: %2.2e\n',solution(1))
+fprintf('GDD: %2.2e\n',solution(2))
+
+phase_new = polyval([FOD solution(1) solution(2) GD C],w_Sk-w0);
+N = 5*length(w_Sk);
+[w_ext,I_ext,p_ext,l_ext] = compensation_extendPhaseByZeros(w_Sk,I_Sk,p_Sk-phase_new,N);
+[Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
+[Int_new,t_new,E_new] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
+factor = Int_F/Int_new;
+
+figure(figNum)
+    figNum = figNum + 1;
+    hold on
+    plot(w_Sk,p_Sk,'r');
+    plot(w_Sk,phase_new,'b');
+    legend('Original','New found optimum')
+    xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+    ylabel('[rad]','fontweight','bold','fontsize',16);
+    title('Test 7: Comparison of the new found optimum to the original phase','fontweight','bold','fontsize',16);
+    hold off
+    
+figure(figNum)
+    figNum = figNum + 1;
+    plot(w_Sk,p_Sk-phase_new);
+    legend('Original phase minus new found optimum')
+    xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+    ylabel('[rad]','fontweight','bold','fontsize',16);
+    title('Test 7: Difference between original phase and new optimum','fontweight','bold','fontsize',16);
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(t_F,abs(Ek_F).^2,'g')
+    hold on
+    plot(t_new,abs(E_new).^2.*factor,'r')
+    hold off
+    xlim([-2000 2000])
+    xlabel('time [fs]','fontweight','bold','fontsize',16);
+    ylabel('relative units','fontweight','bold','fontsize',16);
+    legend('Fourier limit','Compressed from new optimum')
+    title('Test 7: Observation of the compression of our new found optimum','fontweight','bold','fontsize',16);

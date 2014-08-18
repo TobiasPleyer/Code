@@ -324,7 +324,7 @@ for TOD2=A
     for GDD2=B
         polyn = [FOD TOD2 GDD2 GD C];
         % Calculate the value
-        val = compensation_minFuncForBruteForce_no_global2(polyn,w0,w,I,p,Int_F);
+        val = compensation_minFuncForBruteForce_no_global2(polyn,w0,w_Sk,I_Sk,p_Sk,Int_F);
         V(N) = val;
         if mod(N,1000)==0
             fprintf('N: %d\n',N)
@@ -343,7 +343,7 @@ figure(figNum)
     zlabel('Achieved minimum value (1-max(abs(E))','fontweight','bold','fontsize',16);
     title('Test 4: Calcultated values of our minimization function 2D case','fontweight','bold','fontsize',16);
     
-% TEST 5: Comparing results with previous resluts from older functions
+% TEST 5: Comparing results with previous results from older functions
 fprintf('TEST 5: Varify with results from older results\n')
 
 C_main = -2.4188;
@@ -406,14 +406,8 @@ fprintf('TEST 6: Finding a better brute force range with the knowledge from our 
 FOD = -1.8093e+07;
 TOD = -8e+05;
 GDD = 4e04;
-GD = 2e03;
-C = -2.5;
-fprintf('\nWe start with the following values:\n')
-fprintf('FOD: %2.2e\n',FOD)
-fprintf('TOD: %2.2e\n',TOD)
-fprintf('GDD: %2.2e\n',GDD)
-fprintf('GD: %2.2e\n',GD)
-fprintf('C: %2.2e\n',C)
+GD = 1947;
+C = -2.4188;
 
 ord_TOD = floor(log10(abs(TOD)));
 min_TOD = TOD-5*10^(floor(log10(abs(TOD)))-1);
@@ -427,17 +421,25 @@ A = linspace(min_TOD,max_TOD,n_a);
 B = linspace(min_GDD,max_GDD,n_b);
 V = zeros(n_b,n_a);
 
-['ord_TOD = floor(log10(abs(TOD)))\n' ...
-min_TOD = TOD-5*10^(floor(log10(abs(TOD)))-1);
-max_TOD = TOD+5*10^(floor(log10(abs(TOD)))-1);
-n_a   = 100;
-ord_GDD = floor(log10(abs(GDD)));
-min_GDD = GDD-5*10^(floor(log10(abs(GDD)))-1);
-max_GDD = GDD+5*10^(floor(log10(abs(GDD)))-1);
-n_b   = 100;
-A = linspace(min_TOD,max_TOD,n_a);
-B = linspace(min_GDD,max_GDD,n_b);
-V = zeros(n_b,n_a);
+fprintf('\nWe start with the following values:\n')
+fprintf('FOD: %2.2e\n',FOD)
+fprintf('TOD: [%2.2e  %2.2e]\n',min_TOD,max_TOD)
+fprintf('GDD: [%2.2e  %2.2e]\n',min_GDD,max_GDD)
+fprintf('GD: %2.2e\n',GD)
+fprintf('C: %2.2e\n',C)
+
+fprintf('Using the following calculations:\n')
+fprintf(['ord_TOD = floor(log10(abs(TOD)))\n' ...
+'min_TOD = TOD-5*10^(floor(log10(abs(TOD)))-1)\n' ...
+'max_TOD = TOD+5*10^(floor(log10(abs(TOD)))-1)\n' ...
+'n_a   = 100\n' ...
+'ord_GDD = floor(log10(abs(GDD)))\n' ...
+'min_GDD = GDD-5*10^(floor(log10(abs(GDD)))-1)\n' ...
+'max_GDD = GDD+5*10^(floor(log10(abs(GDD)))-1)\n' ...
+'n_b   = 100\n' ...
+'A = linspace(min_TOD,max_TOD,n_a)\n' ...
+'B = linspace(min_GDD,max_GDD,n_b)\n' ...
+'V = zeros(n_b,n_a)\n'])
 
 figure(figNum)
     figNum = figNum + 1;
@@ -445,16 +447,16 @@ figure(figNum)
 for TOD2=A
     for GDD2=B
         polyn = [FOD TOD2 GDD2 GD C];
-        plot(fit_w_Sk,polyval(polyn,fit_w_Sk-w0))
+        plot(w_Sk,polyval(polyn,w_Sk-w0))
     end
 end
-    h1 = plot(fit_w_Sk,polyval(polyn,fit_w_Sk-w0));
-    h2 = plot(fit_w_Sk,fit_p_Sk,'r');
+    h1 = plot(w_Sk,polyval(polyn,w_Sk-w0));
+    h2 = plot(w_Sk,p_Sk,'r');
     legend([h1 h2],'Brute force','Original')
-    ylim([min(fit_p_Sk) max(fit_p_Sk)])
+%     ylim([min(fit_p_Sk) max(fit_p_Sk)])
     xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
     ylabel('[rad]','fontweight','bold','fontsize',16);
-    title('Test 4: View on the function bulk we run through compared to the original','fontweight','bold','fontsize',16);
+    title('Test 6: View on the function bulk we run through compared to the original','fontweight','bold','fontsize',16);
     hold off
     
 figure(figNum)
@@ -463,16 +465,16 @@ figure(figNum)
 for TOD2=A
     for GDD2=B
         polyn = [FOD TOD2 GDD2 GD C];
-        plot(fit_w_Sk,fit_p_Sk-polyval(polyn,fit_w_Sk-w0))
+        plot(w_Sk,p_Sk-polyval(polyn,w_Sk-w0))
     end
 end
-    h1 = plot(fit_w_Sk,fit_p_Sk-polyval(polyn,fit_w_Sk-w0));
-    h2 = plot(fit_w_Sk,zeros(size(fit_w_Sk)),'r');
-    h3 = plot(fit_w_Sk,fit_p_Sk-polyval([FOD TOD GDD GD C],fit_w_Sk-w0),'g');
+    h1 = plot(w_Sk,p_Sk-polyval(polyn,w_Sk-w0));
+    h2 = plot(w_Sk,zeros(size(w_Sk)),'r');
+    h3 = plot(w_Sk,p_Sk-polyval([FOD TOD GDD GD C],w_Sk-w0),'g');
     legend([h1 h2 h3],'Original phase minus the brute force solutions','Zero line','Original phase minus the least square fit')
     xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
     ylabel('[rad]','fontweight','bold','fontsize',16);
-    title('Test 4: View on the differences we get when subtracting the estimate from the original','fontweight','bold','fontsize',16);
+    title('Test 6: View on the differences we get when subtracting the estimate from the original','fontweight','bold','fontsize',16);
     hold off
     
 N = 1;
@@ -480,7 +482,7 @@ for TOD2=A
     for GDD2=B
         polyn = [FOD TOD2 GDD2 GD C];
         % Calculate the value
-        val = compensation_minFuncForBruteForce_no_global2(polyn,w0,w,I,p,Int_F);
+        val = compensation_minFuncForBruteForce_no_global2(polyn,w0,w_Sk,I_Sk,p_Sk,Int_F);
         V(N) = val;
         if mod(N,1000)==0
             fprintf('N: %d\n',N)
@@ -497,4 +499,45 @@ figure(figNum)
     xlabel('TOD','fontweight','bold','fontsize',16);
     ylabel('GDD','fontweight','bold','fontsize',16);
     zlabel('Achieved minimum value (1-max(abs(E))','fontweight','bold','fontsize',16);
-    title('Test 4: Calcultated values of our minimization function 2D case','fontweight','bold','fontsize',16);
+    title('Test 6: Calcultated values of our minimization function 2D case','fontweight','bold','fontsize',16);
+    
+% TEST 7: Search for an optimal solution
+fprintf('TEST 7: Search for an optimal solution using optimization algorithms\n')
+
+fprintf('\nWe start with the following values:\n')
+fprintf('FOD: %2.2e\n',FOD)
+fprintf('TOD: %2.2e\n',TOD)
+fprintf('GDD: %2.2e\n',GDD)
+fprintf('GD: %2.2e\n',GD)
+fprintf('C: %2.2e\n',C)
+
+options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+min_func = @(x)compensation_minFuncForBruteForce_no_global2([FOD x(1) x(2) GD C],w0,w_Sk,I_Sk,p_Sk,Int_F);
+
+[solution,val] = fminsearch(min_func,[TOD GDD],options);
+
+fprintf('With the new optimization we find a value of %2.2f%%\n',(1-val)*100)
+fprintf('The found values for TOD and GDD are:\n')
+fprintf('TOD: %2.2e\n',solution(1))
+fprintf('GDD: %2.2e\n',solution(2))
+
+phase_new = polyval([FOD TOD GDD GD C],w_Sk-w0);
+N = 5*length(w_Sk);
+[w_ext,I_ext,p_ext,l_ext] = compensation_extendPhaseByZeros(w_Sk,I_Sk,p_Sk-phase_new,N);
+[Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
+[Int_new,t_new,E_new] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
+factor = Int_F/Int_ext;
+
+
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(t_F,abs(Ek_F).^2,'g')
+    hold on
+    plot(t_new,abs(E_new).^2.*factor,'r')
+    hold off
+    xlim([-2000 2000])
+    xlabel('time [fs]','fontweight','bold','fontsize',16);
+    ylabel('relative units','fontweight','bold','fontsize',16);
+    legend('Fourier limit','Compressed from new optimum')
+    title('Test 7: Observation of the compression of our new found optimum','fontweight','bold','fontsize',16);
