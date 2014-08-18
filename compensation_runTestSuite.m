@@ -384,12 +384,13 @@ N = 5*length(w_Sk);
 [Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
 [Int_ext,t_ext,E_ext] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
 factor = Int_F/Int_ext;
+E_ext = E_ext * sqrt(factor);
 
 figure(figNum)
     figNum = figNum + 1;
     plot(t_F,abs(Ek_F).^2,'g')
     hold on
-    plot(t_ext,abs(E_ext).^2.*factor,'r')
+    plot(t_ext,abs(E_ext).^2,'r')
     hold off
     xlim([-2000 2000])
     xlabel('time [fs]','fontweight','bold','fontsize',16);
@@ -552,9 +553,10 @@ figure(figNum)
     plot(t_F,abs(Ek_F).^2,'g')
     hold on
     plot(t_new,abs(E_new).^2.*factor,'r')
+    plot(t_ext,abs(E_ext).^2,'b')
     hold off
     xlim([-2000 2000])
     xlabel('time [fs]','fontweight','bold','fontsize',16);
     ylabel('relative units','fontweight','bold','fontsize',16);
-    legend('Fourier limit','Compressed from new optimum')
+    legend('Fourier limit','Compressed from new optimum','Compressed from old optimum')
     title('Test 7: Observation of the compression of our new found optimum','fontweight','bold','fontsize',16);
