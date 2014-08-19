@@ -356,7 +356,12 @@ FOD_main = -1.8093e+07;
 
 phase_main = polyval([FOD_main TOD_main GDD_main GD_main C_main],w_Sk-w0);
 
-fprintf('From our old function we found:\nC_main = -2.4188\nGD_main = 1947\nGDD_main = 41109\nTOD_main = -8.374e+05\nFOD_main = -1.8093e+07\n')
+fprintf(['From our old function we found:\n' ...
+    'C_main = %2.4e\n' ...
+    'GD_main = %2.4e\n' ...
+    'GDD_main = %2.4e\n' ...
+    'TOD_main = %2.4e\n' ...
+    'FOD_main = %2.4e\n'],C_main,GD_Main)
 
 figure(figNum)
     figNum = figNum + 1;
@@ -628,14 +633,33 @@ figure(figNum)
 fprintf('\n\nTEST 9: Investigating the effect of higher orders to the final compression\n')
 
 orders = 2:10;
+vals = zeros(1,length(orders));
+options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+min_func = @(x)compensation_minFuncForBruteForce_no_global2(x,w0,w_Sk,I_Sk,p_Sk,Int_F);
 
 for order=orders
-    polynomial = polyfit(fit_w_Sk,fit_p_Sk,4);
+    polynomial = polyfit(fit_w_Sk,fit_p_Sk,order);
     coeffs = zeros(1,order+1);
 
+    coeffs(end) = polyval(polynomial,w0);
     deriv = polyder(polynomial);
-    coeffs(1) = polyval(deriv,w0);
-    for i=2:order+1
-        
+    coeffs(end-1) = polyval(deriv,w0);
+    for i=2:order
+        deriv = polyder(deriv);
+        coeffs(end-i) = polyval(deriv,w0) / factorial(i);
     end
+    fprintf('Order %d\n',order)
+    fprintf('Starting values:')
+    disp(coeffs)
+    [solution,val] = fminsearch(min_func,coeffs,options);
+    fprintf('Final values:')
+    disp(solution)
+    vals(order-1) = 1-val;
 end
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(orders,vals)
+    xlabel('Highest included order','fontweight','bold','fontsize',16);
+    ylabel('Achieved percentage of fourier limit','fontweight','bold','fontsize',16);
+    title('Test 9: Observation of the effectiveness to include orders higher than 4','fontweight','bold','fontsize',16);
