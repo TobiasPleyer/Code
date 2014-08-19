@@ -45,7 +45,7 @@ figure(figNum)
     title('Test 0: The pulse with intensity and spectrum we work with','fontweight','bold','fontsize',16);
 
 %% TEST 1: See how our Fourier transformation performs.
-fprintf('TEST 1: Fourier Trafo\n')
+fprintf('\n\nTEST 1: Fourier Trafo\n')
 fprintf('p1 = 50000*(w-w0).^2\np2 = 80000*(w-w0).^2\np3 = 110000*(w-w0).^2;\n')
 
 p1  = 50000*(w-w0).^2;
@@ -73,7 +73,7 @@ figure(figNum)
     title('Test 1: Observation of the effects of different GDDs on the pulse','fontweight','bold','fontsize',16);
     
 %% TEST 2: See if adding zeros increases our sample rate.
-fprintf('TEST 2: Increase sample rate\n')
+fprintf('\n\nTEST 2: Increase sample rate\n')
 
 N = length(w);
 [w_ext,I_ext,p_ext,l_ext] = compensation_extendPhaseByZeros(w,I,p,N);
@@ -105,7 +105,7 @@ figure(figNum)
     title('Test 2: Observation of the increase in peak sampling rate by adding zeros','fontweight','bold','fontsize',16);
     
 %% TEST 3: See if our brute force ansatz works with our simple sample phase
-fprintf('TEST 3: Approximation of the phase curve via brute force\n')
+fprintf('\n\nTEST 3: Approximation of the phase curve via brute force\n')
 
 fprintf('      > 1D\n')
 p = 80000*(w-w0).^2;
@@ -191,7 +191,7 @@ figure(figNum)
     title('Test 3: Calculated values of our minimization function 2D case','fontweight','bold','fontsize',16);
 
 %% TEST 4: Apply the results on the measured phase
-fprintf('TEST 4: Apply the results on the measured phase\n')
+fprintf('\n\nTEST 4: Apply the results on the measured phase\n')
 
 [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData();
 
@@ -346,7 +346,7 @@ figure(figNum)
     title('Test 4: Calculated 2D values at the vicinity of our least square fit','fontweight','bold','fontsize',16);
     
 %% TEST 5: Comparing results with previous results from older functions
-fprintf('TEST 5: Varify with results from older results\n')
+fprintf('\n\nTEST 5: Varify with results from older results\n')
 
 C_main = -2.4188;
 GD_main = 1947;
@@ -404,7 +404,7 @@ val = compensation_minFuncForBruteForce_no_global2([FOD_main TOD_main GDD_main G
 fprintf('\nFound compression value: %2.2f%% of fourier limit\n',(1-val)*100)
 
 %% TEST 6: Running the brute force attack with the knowledge from our old algorithm
-fprintf('TEST 6: Finding a better brute force range with the knowledge from our old algorithm\n')
+fprintf('\n\nTEST 6: Finding a better brute force range with the knowledge from our old algorithm\n')
 
 FOD = -1.8093e+07;
 TOD = -8e+05;
@@ -413,13 +413,13 @@ GD = 1947;
 C = -2.4188;
 
 ord_TOD = floor(log10(abs(TOD)));
-min_TOD = TOD-8*10^(floor(log10(abs(TOD)))-1);
-max_TOD = TOD+8*10^(floor(log10(abs(TOD)))-1);
-n_a   = 100;
+min_TOD = TOD-20*10^(floor(log10(abs(TOD)))-1);
+max_TOD = TOD+20*10^(floor(log10(abs(TOD)))-1);
+n_a   = 200;
 ord_GDD = floor(log10(abs(GDD)));
 min_GDD = GDD-5*10^(floor(log10(abs(GDD)))-1);
 max_GDD = GDD+5*10^(floor(log10(abs(GDD)))-1);
-n_b   = 100;
+n_b   = 50;
 A = linspace(min_TOD,max_TOD,n_a);
 B = linspace(min_GDD,max_GDD,n_b);
 V = zeros(n_b,n_a);
@@ -433,13 +433,13 @@ fprintf('C: %2.2e\n',C)
 
 fprintf('Using the following calculations:\n')
 fprintf(['ord_TOD = floor(log10(abs(TOD)))\n' ...
-'min_TOD = TOD-8*10^(floor(log10(abs(TOD)))-1)\n' ...
-'max_TOD = TOD+8*10^(floor(log10(abs(TOD)))-1)\n' ...
-'n_a   = 100\n' ...
+'min_TOD = TOD-20*10^(floor(log10(abs(TOD)))-1)\n' ...
+'max_TOD = TOD+20*10^(floor(log10(abs(TOD)))-1)\n' ...
+'n_a   = 200\n' ...
 'ord_GDD = floor(log10(abs(GDD)))\n' ...
 'min_GDD = GDD-5*10^(floor(log10(abs(GDD)))-1)\n' ...
 'max_GDD = GDD+5*10^(floor(log10(abs(GDD)))-1)\n' ...
-'n_b   = 100\n' ...
+'n_b   = 50\n' ...
 'A = linspace(min_TOD,max_TOD,n_a)\n' ...
 'B = linspace(min_GDD,max_GDD,n_b)\n' ...
 'V = zeros(n_b,n_a)\n'])
@@ -505,7 +505,7 @@ figure(figNum)
     title('Test 6: Calculated values of our minimization function 2D case','fontweight','bold','fontsize',16);
     
 %% TEST 7: Search for an optimal solution
-fprintf('TEST 7: Search for an optimal solution using optimization algorithms\n')
+fprintf('\n\nTEST 7: Search for an optimal solution using optimization algorithms\n')
 
 fprintf('\nWe start with the following values:\n')
 fprintf('FOD: %2.2e\n',FOD*24)
@@ -519,7 +519,7 @@ min_func = @(x)compensation_minFuncForBruteForce_no_global2([FOD x(1) x(2) GD C]
 
 [solution,val] = fminsearch(min_func,[TOD GDD],options);
 
-fprintf('With the new optimization we find a value of %2.2f%%\n',(1-val)*100)
+fprintf('With the new optimization we find a value of %2.2f%% of the fourier peak\n',(1-val)*100)
 fprintf('The found values for TOD and GDD are:\n')
 fprintf('TOD: %2.2e\n',solution(1)*6)
 fprintf('GDD: %2.2e\n',solution(2)*2)
@@ -562,3 +562,99 @@ figure(figNum)
     ylabel('relative units','fontweight','bold','fontsize',16);
     legend('Fourier limit','Compressed from new optimum','Compressed from old optimum')
     title('Test 7: Observation of the compression of our new found optimum','fontweight','bold','fontsize',16);
+    
+%% TEST 8: Considering higher order optimization
+fprintf('\n\nTEST 8: Including higher orders in the optimization process\n')
+
+fprintf('\nWe start again with the following values:\n')
+fprintf('FOD: %2.2e\n',FOD*24)
+fprintf('TOD: %2.2e\n',TOD*6)
+fprintf('GDD: %2.2e\n',GDD*2)
+fprintf('GD: %2.2e\n',GD)
+fprintf('C: %2.2e\n',C)
+
+options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+min_func = @(x)compensation_minFuncForBruteForce_no_global2([x(1) x(2) x(3) GD C],w0,w_Sk,I_Sk,p_Sk,Int_F);
+
+[solution,val] = fminsearch(min_func,[FOD TOD GDD],options);
+
+fprintf('Including the 4th order in the optimization we find a value of %2.2f%% of the fourier peak\n',(1-val)*100)
+fprintf('The found values for FOD, TOD and GDD are:\n')
+fprintf('FOD: %2.2e\n',solution(1)*24)
+fprintf('TOD: %2.2e\n',solution(2)*6)
+fprintf('GDD: %2.2e\n',solution(3)*2)
+
+phase_new = polyval([solution(1) solution(2) solution(3) GD C],w_Sk-w0);
+N = 5*length(w_Sk);
+[w_ext,I_ext,p_ext,l_ext] = compensation_extendPhaseByZeros(w_Sk,I_Sk,p_Sk-phase_new,N);
+[Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
+[Int_new2,t_new2,E_new2] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
+factor2 = Int_F/Int_new2;
+
+figure(figNum)
+    figNum = figNum + 1;
+    hold on
+    plot(w_Sk,p_Sk,'r');
+    plot(w_Sk,phase_new,'b');
+    legend('Original','New found optimum')
+    xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+    ylabel('[rad]','fontweight','bold','fontsize',16);
+    title('Test 8: Comparison of the found optimum including 4th order to the original phase','fontweight','bold','fontsize',16);
+    hold off
+    
+figure(figNum)
+    figNum = figNum + 1;
+    plot(w_Sk,p_Sk-phase_new);
+    legend('Original phase minus new found optimum')
+    xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+    ylabel('[rad]','fontweight','bold','fontsize',16);
+    title('Test 8: Difference between original phase and compression including order 4','fontweight','bold','fontsize',16);
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(t_F,abs(Ek_F).^2,'g')
+    hold on
+    plot(t_new,abs(E_new).^2.*factor,'r')
+    plot(t_new2,abs(E_new2).^2.*factor2,'c')
+    plot(t_ext,abs(E_ext).^2,'b')
+    hold off
+    xlim([-2000 2000])
+    xlabel('time [fs]','fontweight','bold','fontsize',16);
+    ylabel('relative units','fontweight','bold','fontsize',16);
+    legend('Fourier limit','Compression including up to order 3','Compression including up to order 4','Old found optimum')
+    title('Test 8: Observation of the compression with higher orders','fontweight','bold','fontsize',16);
+    
+%% TEST 9: Showing the effect of higher orders
+fprintf('\n\nTEST 9: Investigating the effect of higher orders to the final compression\n')
+
+orders = 2:10;
+vals = zeros(1,length(orders));
+options = optimset('MaxIter', 1000,'MaxFunEvals',1e5);
+min_func = @(x)compensation_minFuncForBruteForce_no_global2(x,w0,w_Sk,I_Sk,p_Sk,Int_F);
+
+for order=orders
+    polynomial = polyfit(fit_w_Sk,fit_p_Sk,order);
+    coeffs = zeros(1,order+1);
+
+    coeffs(end) = polyval(polynomial,w0);
+    deriv = polyder(polynomial);
+    coeffs(end-1) = polyval(deriv,w0);
+    for i=2:order
+        deriv = polyder(deriv);
+        coeffs(end-i) = polyval(deriv,w0) / factorial(i);
+    end
+    fprintf('Order %d\n',order)
+    fprintf('Starting values:')
+    disp(coeffs)
+    [solution,val] = fminsearch(min_func,coeffs,options);
+    fprintf('Final values:')
+    disp(solution)
+    vals(order-1) = 1-val;
+end
+
+figure(figNum)
+    figNum = figNum + 1;
+    plot(orders,vals)
+    xlabel('Highest included order','fontweight','bold','fontsize',16);
+    ylabel('Achieved percentage of fourier limit','fontweight','bold','fontsize',16);
+    title('Test 9: Observation of the effectiveness to include orders higher than 4','fontweight','bold','fontsize',16);
