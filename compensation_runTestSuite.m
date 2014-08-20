@@ -595,6 +595,14 @@ N = 5*length(w_Sk);
 [Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
 [Int_new2,t_new2,E_new2] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
 factor2 = Int_F/Int_new2;
+% Consider only the narrow spectral range of interest
+narrow_phase_new = polyval([solution(1) solution(2) solution(3) GD C],fit_w_Sk-w0);
+N = 5*length(fit_w_Sk);
+[narrow_w_ext,narrow_I_ext,narrow_p_ext,narrow_l_ext] = compensation_extendPhaseByZeros(fit_w_Sk,fit_I_Sk,fit_p_Sk-narrow_phase_new,N);
+[narrow_Int_F,narrow_t_F,narrow_Ek_F] = compensation_calcFourierlimit(narrow_I_ext,narrow_l_ext);
+[narrow_Int_new2,narrow_t_new2,narrow_E_new2] = compensation_calcFourierlimit(narrow_I_ext,narrow_l_ext,narrow_p_ext);
+narrow_factor2 = narrow_Int_F/narrow_Int_new2;
+fprintf('Restricting the calculations to the narrow spectral range leads %2.2f%% of the fourier peak\n',narrow_factor2*100)
 
 figure(figNum)
     figNum = figNum + 1;
