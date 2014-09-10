@@ -51,7 +51,7 @@ figNum = 1;
 
 %% Start Algorithm
 
-[t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData();
+[t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData('../Daten/Chirped Mirrors/Frogs/25.3W_RTT=6.404us_Ip=12.8A/','001_AIR_FROG_25.3W_RTT=6.404us_Ip=12.8A.bin');
 
 [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
 
