@@ -53,7 +53,14 @@ for i=1:length(usefulFiles)
     else
         factors(i) = -1;
     end
-    plot(fit_w_Sk,factors(i)*fit_p_Sk)
+    binary = dec2bin(i);
+    switch length(binary)
+        case 1
+            binary = ['00' binary];
+        case 2
+            binary = ['0' binary];
+    end
+    plot(fit_w_Sk,factors(i)*fit_p_Sk,'Color',[str2num(binary(1)) str2num(binary(2)) str2num(binary(3))])
 end
 xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
 ylabel('[rad]','fontweight','bold','fontsize',16);
@@ -66,7 +73,7 @@ fprintf('\n--------------RUNNING TEST SUITE--------------\n')
 % etc.. and find an optimal solution. When this is done we load the other
 % files and see how well we can compress them with that solution.
 fprintf('Opening first file...\n')
-fileBase = usefulFiles{1};
+fileBase = usefulFiles{6};
 [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData(folder,fileBase);
 [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
 [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,factors(1)*p_Sk);
@@ -135,3 +142,38 @@ figure(figNum)
     
 fprintf('\nApplying the found optimum to the remaining pulses\n')
 
+for i=1:length(usefulFiles)
+    fileBase = usefulFiles{i};
+    [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData(folder,fileBase);
+    [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
+    [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,factors(1)*p_Sk);
+    [fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,p_Sk);
+    [w_ext,I_ext,p_ext,l_ext] = compensation_extendPhaseByZeros(w_Sk,I_Sk,p_Sk-phase_new,N);
+    [Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I_ext,l_ext);
+    [Int_new,t_new,E_new] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
+    factor = Int_F/Int_new;
+    figure(figNum)
+        figNum = figNum + 1;
+        plot(w_Sk,p_Sk,'b')
+        hold on
+        plot(w_Sk,phase_new,'r')
+        plot(w_Sk,I_Sk,'g')
+        plot(w_Sk,50*I_Sk,'m')
+        hold off
+%         xlim([-2000 2000])
+        xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+        ylabel('[rad]','fontweight','bold','fontsize',16);
+        legend('Original','Approximation','Intensity')
+        title(sprintf('Pulse Nr.%d: Direct comparison between the phase curves',i),'fontweight','bold','fontsize',16);
+    figure(figNum)
+        figNum = figNum + 1;
+        plot(t_F,abs(Ek_F).^2,'g')
+        hold on
+        plot(t_new,abs(E_new).^2.*factor,'r')
+        hold off
+        xlim([-2000 2000])
+        xlabel('time [fs]','fontweight','bold','fontsize',16);
+        ylabel('relative units','fontweight','bold','fontsize',16);
+        legend('Fourier limit','Compressed from new optimum')
+        title(sprintf('Pulse Nr.%d: Observation of the compression of our found optimum',i),'fontweight','bold','fontsize',16);
+end
