@@ -6,9 +6,9 @@ warning off
 %format compact;
 set(0,'DefaultFigureWindowStyle','docked')
 
-figNum = 1;
-
 pattern = '^\d\d\d_';
+
+%% Simple pulse
 folder = '../Daten/FROGS 10kHz_2mJ/New/';
 folderContent = dir(folder);
 numberOfFiles = length(folderContent);
@@ -38,8 +38,7 @@ if isempty(usefulFiles)
 end
 
 factors = zeros(size(usefulFiles));
-figure(figNum)
-figNum = figNum + 1;
+figure()
 hold on
 for i=1:length(usefulFiles)
     fileBase = usefulFiles{i};
@@ -82,3 +81,37 @@ for i=1:length(usefulFiles)
     fileBase = usefulFiles{i};
     [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,factors(i),phase_new);
 end
+
+
+%% Complex pulse
+% folder = '../Daten/FROGS 10kHz_2mJ/4mJ/';
+% folderContent = dir(folder);
+% numberOfFiles = length(folderContent);
+% usefulFiles = {};
+% % Filtering of unwanted files necessary!
+% fprintf('Searching for files with pattern: %s\n\n',pattern)
+% for i=1:numberOfFiles
+%     fileName = folderContent(i).name;
+%     if ~isempty(regexp(fileName,pattern,'match'))
+%         fileName = strrep(fileName,'.Speck.dat','');
+%         fileName = strrep(fileName,'.Ek.dat','');
+%         L = length(usefulFiles);
+%         flag = true;
+%         for j=1:L
+%             if fileName==usefulFiles{j}
+%                 flag = false;
+%             end
+%         end
+%         if flag
+%             usefulFiles{L+1} = fileName;
+%             fprintf('File %d: %s\n',L+1,fileName)
+%         end
+%     end
+% end
+% if isempty(usefulFiles)
+%     error('No files found that match the patter!')
+% end
+% for i=1:length(usefulFiles)
+%     fileBase = usefulFiles{i};
+%     [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,1);
+% end

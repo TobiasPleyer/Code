@@ -64,7 +64,7 @@ function [w_Sk,I_Sk,p_Sk,phase_new]=compensation_compensatePulse(folder,fileBase
             xlim([-2000 2000])
             xlabel('time [fs]','fontweight','bold','fontsize',16);
             ylabel('relative units','fontweight','bold','fontsize',16);
-            legend('Fourier limit','Compressed from new optimum','Before compensation')
+            legend('Fourier limit','Compressed from new optimum','Before compression')
             title('Observation of the compression of our found optimum','fontweight','bold','fontsize',16);
     end
     
@@ -104,7 +104,7 @@ function [w_Sk,I_Sk,p_Sk,phase_new]=compensation_compensatePulse(folder,fileBase
             xlim([-2000 2000])
             xlabel('time [fs]','fontweight','bold','fontsize',16);
             ylabel('relative units','fontweight','bold','fontsize',16);
-            legend('Fourier limit','Compressed from new optimum','Before compensation')
+            legend('Fourier limit','Compressed from new optimum','Before compression')
             title('Observation of the compression of our found optimum','fontweight','bold','fontsize',16);
     end
 end
