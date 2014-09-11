@@ -1,11 +1,11 @@
-function [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]=compensation_loadData(fileBase, fileName)
+function [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]=compensation_loadData(folder, fileBase)
     %% This is the part where all filenames and directories are defined
 
     if nargin<2
-        error('Usage: compensation_loadData(fileBase, file1[, file2, file3, ...]\n')
+        error('Usage: compensation_loadData(folder, fileBase)')
     end
-        filename_Et    = sprintf('%s%s.Ek.dat',fileBase,fileName);
-        filename_Speck = sprintf('%s%s.Speck.dat',fileBase,fileName);
+        filename_Et    = sprintf('%s%s.Ek.dat',folder,fileBase);
+        filename_Speck = sprintf('%s%s.Speck.dat',folder,fileBase);
     %%
 
 
