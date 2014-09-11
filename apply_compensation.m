@@ -6,8 +6,10 @@ warning off
 %format compact;
 set(0,'DefaultFigureWindowStyle','docked')
 
-pattern = '^\d\d_';
-folder = '../Daten/FROGS 10kHz_2mJ/Old/';
+figNum = 1;
+
+pattern = '^\d\d\d_';
+folder = '../Daten/FROGS 10kHz_2mJ/New/';
 folderContent = dir(folder);
 numberOfFiles = length(folderContent);
 usefulFiles = {};
@@ -32,35 +34,47 @@ for i=1:numberOfFiles
     end
 end
 if isempty(usefulFiles)
-    fprintf('No files found that match the patter!\n')
+    error('No files found that match the patter!')
 end
 
-figure(1)
+factors = zeros(size(usefulFiles));
+figure(figNum)
+figNum = figNum + 1;
 hold on
 for i=1:length(usefulFiles)
     fileBase = usefulFiles{i};
     [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData(folder,fileBase);
     [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
     [fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,p_Sk);
-    plot(fit_w_Sk,fit_p_Sk)
+    temp_polynomial                       = polyfit(fit_w_Sk,fit_p_Sk,4);
+    GDD = polyval(polyder(polyder(temp_polynomial)),w0) / 2;
+    if GDD > 0
+        factors(i) = 1;
+    else
+        factors(i) = -1;
+    end
+    plot(fit_w_Sk,factors(i)*fit_p_Sk)
 end
+xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
+ylabel('[rad]','fontweight','bold','fontsize',16);
+title('Direct comparison between the phase curves for our 6 retrievals','fontweight','bold','fontsize',16);
 hold off
 
-fprintf('\n--------------RUNNING TEST SUITE-------------\n')
+fprintf('\n--------------RUNNING TEST SUITE--------------\n')
 
 % We take the first file in our list, find its values for GD, GDD, TOD,
 % etc.. and find an optimal solution. When this is done we load the other
 % files and see how well we can compress them with that solution.
 fprintf('Opening first file...\n')
-fileBase = usefulFiles{5};
+fileBase = usefulFiles{1};
 [t_Et,I_Et,p_Et,l_Sk,I_Sk,p_Sk]       = compensation_loadData(folder,fileBase);
 [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
-[l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
+[l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,factors(1)*p_Sk);
 [fit_w_Sk,fit_p_Sk,fit_I_Sk,fit_l_Sk] = compensation_findRangeOfInterest(I_Sk,w_Sk,l_Sk,p_Sk);
-polynomial = polyfit(fit_w_Sk,fit_p_Sk,4);
+polynomial                            = polyfit(fit_w_Sk,fit_p_Sk,4);
 % Find the correct coefficients
-C = polyval(polynomial,w0);
-GD = polyval(polyder(polynomial),w0);
+C   = polyval(polynomial,w0);
+GD  = polyval(polyder(polynomial),w0);
 GDD = polyval(polyder(polyder(polynomial)),w0) / 2;
 TOD = polyval(polyder(polyder(polyder(polynomial))),w0) / 6;
 FOD = polyval(polyder(polyder(polyder(polyder(polynomial)))),w0) / 24;
@@ -88,24 +102,27 @@ N = 5*length(w_Sk);
 [Int_new,t_new,E_new] = compensation_calcFourierlimit(I_ext,l_ext,p_ext);
 factor = Int_F/Int_new;
 
-figure(2)
+figure(figNum)
+    figNum = figNum + 1;
     hold on
     plot(w_Sk,p_Sk,'r');
     plot(w_Sk,phase_new,'b');
     legend('Original','New found optimum')
     xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
     ylabel('[rad]','fontweight','bold','fontsize',16);
-    title('Test 7: Comparison of the new found optimum to the original phase','fontweight','bold','fontsize',16);
+    title('Comparison of the found optimum to the original phase','fontweight','bold','fontsize',16);
     hold off
     
-figure(3)
+figure(figNum)
+    figNum = figNum + 1;
     plot(w_Sk,p_Sk-phase_new);
     legend('Original phase minus new found optimum')
     xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
     ylabel('[rad]','fontweight','bold','fontsize',16);
-    title('Test 7: Difference between original phase and new optimum','fontweight','bold','fontsize',16);
+    title('Difference between original phase and optimum','fontweight','bold','fontsize',16);
 
-figure(4)
+figure(figNum)
+    figNum = figNum + 1;
     plot(t_F,abs(Ek_F).^2,'g')
     hold on
     plot(t_new,abs(E_new).^2.*factor,'r')
@@ -114,4 +131,7 @@ figure(4)
     xlabel('time [fs]','fontweight','bold','fontsize',16);
     ylabel('relative units','fontweight','bold','fontsize',16);
     legend('Fourier limit','Compressed from new optimum')
-    title('Test 7: Observation of the compression of our new found optimum','fontweight','bold','fontsize',16);
+    title('Observation of the compression of our found optimum','fontweight','bold','fontsize',16);
+    
+fprintf('\nApplying the found optimum to the remaining pulses\n')
+
