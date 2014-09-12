@@ -32,5 +32,5 @@ hold on
 plot(l_Sk,p_Sk)
 hold off
 
-dlmwrite('../Daten/FROGS 10kHz_2mJ/4mJ/complex_pulse_no_bumb_phase',[l_Sk,altered_p_Sk2])
+dlmwrite('../Daten/FROGS 10kHz_2mJ/4mJ/complex_pulse_no_bumb_phase',[l_Sk,altered_p_Sk])
 dlmwrite('../Daten/FROGS 10kHz_2mJ/4mJ/complex_pulse_no_bumb_intensity',[l_Sk,I_Sk])
