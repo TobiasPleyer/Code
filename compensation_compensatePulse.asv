@@ -94,11 +94,12 @@ function [w_Sk,I_Sk,p_Sk,phase_new]=compensation_compensatePulse(folder,fileBase
             ylabel('[rad]','fontweight','bold','fontsize',16)
             xlabel('omega [1/fs]','fontweight','bold','fontsize',16);
             ylim([-5 20])
+            text(1.86,15,sprintf('GDD: %2.2e\nTOD: %2.2e',GDD,TOD))
             title('Comparison of the found optimum to the original phase','fontweight','bold','fontsize',16);
             hold off
             
         [t_min,t_max] = compensation_findFWHM(t_new,abs(E_new).^2.*factor);
-        fprintf('[t_min,t_max] = [%3.2f,%3.2f]\n',t_min,t_max)
+        fprintf('[t_min,t_max] = [%3.2
 
         figure()
             plot(t_F,abs(Ek_F).^2,'g')

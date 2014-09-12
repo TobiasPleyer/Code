@@ -82,10 +82,10 @@ for i=1:length(usefulFiles)
     [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,factors(i),1030,phase_new);
 end
 
-% w_export = linspace(w_Sk(1),w_Sk(end),1000);
-% p_export = interp1(w_Sk,phase_new,w_export,'spline');
-% I_export = interp1(w_Sk,I_Sk,w_export);
-% dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_approximated_Phase.dat',[w_export',p_export',I_export'])
+w_export = linspace(w_Sk(1),w_Sk(end),1000);
+p_export = interp1(w_Sk,phase_new,w_export,'spline');
+I_export = interp1(w_Sk,I_Sk,w_export);
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_approximated_Phase.dat',[w_export,p_export,I_export])
 
 
 % Complex pulse
@@ -118,7 +118,7 @@ if isempty(usefulFiles)
 end
 for i=1:length(usefulFiles)
     fileBase = usefulFiles{i};
-    [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,1,1030);
+    [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,1,1029);
 end
 
-% dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_complex_Pulse_original_Phase.dat',[w_Sk',p_Sk',I_Sk'])
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_complex_Pulse_original_Phase.dat',[w_Sk,p_Sk,I_Sk])

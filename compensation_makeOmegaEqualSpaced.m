@@ -1,7 +1,6 @@
-function [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk]=compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk)
+function [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk]=compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk,l0)
     c    = 299792458;
-    l0   = 1.030;
-    w0   = 2*pi*0.299792458 / l0;
+    w0   = 2*pi*299.792458 / l0;
     w_Sk = 2*pi*c ./ (l_Sk*1e-9);
     w_Sk = w_Sk * 1e-15;
     
