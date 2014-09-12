@@ -2,6 +2,7 @@ clc;    % Clear the command window.
 close all;  % Close all figures (except those of imtool.)
 clear;  % Erase all existing variables. Or clearvars if you want.
 format shortg;
+format longg;
 warning off
 %format compact;
 set(0,'DefaultFigureWindowStyle','docked')
@@ -81,44 +82,53 @@ for i=1:length(usefulFiles)
     fileBase = usefulFiles{i};
     [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,factors(i),1030,phase_new);
 end
+l_Sk = 2*pi*c./w_Sk;
+I_Sk = I_Sk.*l_Sk.^2;
+I_Sk = I_Sk./max(I_Sk);
 
 w_export = linspace(w_Sk(1),w_Sk(end),1000);
 p_export = interp1(w_Sk,phase_new,w_export,'spline');
+c        = 299.792458;
+l_export = 2*pi*c./w_export;
 I_export = interp1(w_Sk,I_Sk,w_export);
-dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_approximated_Phase.dat',[w_export,p_export,I_export])
+
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Approximation_Phase.dat',[l_export',p_export'],'precision',8)
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Approximation_Intensity.dat',[l_export',I_export'],'precision',8)
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Original_Phase.dat',[l_export',p_export'],'precision',8)
+dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Original_Intensity.dat',[l_export',I_export'],'precision',8)
 
 
 % Complex pulse
-folder = '../Daten/FROGS 10kHz_2mJ/4mJ/';
-folderContent = dir(folder);
-numberOfFiles = length(folderContent);
-usefulFiles = {};
-% Filtering of unwanted files necessary!
-fprintf('Searching for files with pattern: %s\n\n',pattern)
-for i=1:numberOfFiles
-    fileName = folderContent(i).name;
-    if ~isempty(regexp(fileName,pattern,'match'))
-        fileName = strrep(fileName,'.Speck.dat','');
-        fileName = strrep(fileName,'.Ek.dat','');
-        L = length(usefulFiles);
-        flag = true;
-        for j=1:L
-            if fileName==usefulFiles{j}
-                flag = false;
-            end
-        end
-        if flag
-            usefulFiles{L+1} = fileName;
-            fprintf('File %d: %s\n',L+1,fileName)
-        end
-    end
-end
-if isempty(usefulFiles)
-    error('No files found that match the patter!')
-end
-for i=1:length(usefulFiles)
-    fileBase = usefulFiles{i};
-    [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,1,1029);
-end
+% folder = '../Daten/FROGS 10kHz_2mJ/4mJ/';
+% folderContent = dir(folder);
+% numberOfFiles = length(folderContent);
+% usefulFiles = {};
+% % Filtering of unwanted files necessary!
+% fprintf('Searching for files with pattern: %s\n\n',pattern)
+% for i=1:numberOfFiles
+%     fileName = folderContent(i).name;
+%     if ~isempty(regexp(fileName,pattern,'match'))
+%         fileName = strrep(fileName,'.Speck.dat','');
+%         fileName = strrep(fileName,'.Ek.dat','');
+%         L = length(usefulFiles);
+%         flag = true;
+%         for j=1:L
+%             if fileName==usefulFiles{j}
+%                 flag = false;
+%             end
+%         end
+%         if flag
+%             usefulFiles{L+1} = fileName;
+%             fprintf('File %d: %s\n',L+1,fileName)
+%         end
+%     end
+% end
+% if isempty(usefulFiles)
+%     error('No files found that match the patter!')
+% end
+% for i=1:length(usefulFiles)
+%     fileBase = usefulFiles{i};
+%     [w_Sk,I_Sk,p_Sk,phase_new] = compensation_compensatePulse(folder,fileBase,1,1030);
+% end
 
-dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_complex_Pulse_original_Phase.dat',[w_Sk,p_Sk,I_Sk])
+% dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_complex_Pulse_original_Phase.dat',[w_Sk',p_Sk',I_Sk'])
