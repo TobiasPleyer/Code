@@ -93,8 +93,6 @@ I_export = interp1(l_Sk,I_Sk,l_export);
 
 dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Approximation_Phase.dat',[l_export',p_export'],'precision',8)
 dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Approximation_Intensity.dat',[l_export',I_export'],'precision',8)
-dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Original_Phase.dat',[l_export',p_export'],'precision',8)
-dlmwrite('../Daten/FROGS 10kHz_2mJ/Trubetskov_simple_Pulse_Original_Intensity.dat',[l_export',I_export'],'precision',8)
 
 
 % Complex pulse
