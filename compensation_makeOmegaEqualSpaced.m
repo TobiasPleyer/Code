@@ -9,7 +9,7 @@ function [l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk]=compensation_makeOmegaEqualSpaced
     w_spacing = w_Sk2(2) - w_Sk2(1);
     % We have to take into account that the conversion from frequency to
     % wavelength changes the unit integral. This has to be compensated by a
-    % wavelength dependent factor of l^2.
+    % wavelength dependent factor of lambda^2.
     I_Sk = I_Sk.*l_Sk.^2;
     I_Sk = I_Sk./max(I_Sk);
     I_Sk = interp1(w_Sk,I_Sk,w_Sk2);
