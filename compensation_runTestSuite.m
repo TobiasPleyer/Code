@@ -14,9 +14,9 @@ fprintf('I : exp(-(w-w0).^2/1e-5)\n')
 fprintf('p : 80000*(w-w0).^2\n')
 fprintf('\n')
 figNum = 1;
-GD  = 299792458;
+c  = 299792458;
 l0 = 1030;
-w0 = 1e-15*  2*pi*GD / (l0*1e-9);
+w0 = 1e-15*  2*pi*c / (l0*1e-9);
 
 %% TEST 0: Starting conditions
 fprintf('\n')
@@ -26,10 +26,10 @@ w_low  = 1.82;
 w_high = 1.84;
 w_inc  = 0.0001;
 w  = w_low:w_inc:w_high;
-l  = 1e9*    2*pi*GD ./ (w*1e15);
+l  = 1e9*    2*pi*c ./ (w*1e15);
 l  = fliplr(l);
 p  = 80000*(w-w0).^2;
-I  = exp(-(w-w0).^2/1e-5);
+I  = exp(-(w-w0).^2/1e-5); %Caution: Probably the factor 1/lambda^2 is missing --> check
 
 [Int_F,t_F,Ek_F] = compensation_calcFourierlimit(I,l);
 [Int,t,E]        = compensation_calcFourierlimit(I,l,p);
