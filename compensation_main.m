@@ -55,7 +55,7 @@ figNum = 1;
 
 [Int_F,t_F,Ek_F]                      = compensation_calcFourierlimit(I_Sk,l_Sk);
 
-[l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk);
+[l0,w0,w_spacing,w_Sk,I_Sk,p_Sk,l_Sk] = compensation_makeOmegaEqualSpaced(l_Sk,I_Sk,p_Sk,1030);
 
 [B,A]                                 = compensation_makeFilter(w_Sk);
 
