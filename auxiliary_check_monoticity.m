@@ -1,4 +1,4 @@
-function monotone=check_monoticity(x)
+function monotone=auxiliary_check_monoticity(x)
     L = length(x);
     monotone = true;
     for i=1:L-1
