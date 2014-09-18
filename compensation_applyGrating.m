@@ -1,4 +1,4 @@
-function [new_phase,grating_phase,GDD_out,TOD_out] = compensation_applyGrating(omega,phase,varargin)
+function [new_phase,grating_phase,GDD_out,TOD_out,varargout] = compensation_applyGrating(omega,phase,varargin)
     % The formulas used below are taken from the script of Prof. Dr. Karsch,
     % pages 31-34 and apply to a grating compressor.
 
@@ -29,7 +29,8 @@ function [new_phase,grating_phase,GDD_out,TOD_out] = compensation_applyGrating(o
            error('EXAMPLE needs propertyName/propertyValue pairs')
         end
         for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
-            inpName = lower(pair{1}); %# make case insensitive
+            %inpName = lower(pair{1}); %# make case insensitive
+            inpName = pair{1};
 
             if any(strmatch(inpName,optionNames))
                 %# overwrite options. If you want you can test for the right class here
@@ -49,23 +50,47 @@ function [new_phase,grating_phase,GDD_out,TOD_out] = compensation_applyGrating(o
     lambda0 = options.lambda0;
     
     c = 299792458;
-    lambda = 2*pi*c ./ omega;
+%     lambda = 2*pi*c ./ omega;
     
-    beta = asin(N.*lambda ./ sin(AOI));
-    theta = AOI - beta;
-    
-    full_grating_phase = 2*G .* (omega./c.*((1+cos(theta)./cos(beta))) - tan(beta).*(2*pi)./d);
+%     beta = asin(N.*lambda ./ sin(AOI));
+%     theta = AOI - beta;
+%     
+%     full_grating_phase = 2*G .* (omega./c.*((1+cos(theta)./cos(beta))) - tan(beta).*(2*pi)./d);
     
     % Now find the GDD and TOD of our grating
     omega0 = 2*pi*c / lambda0;
     beta0 = asin(N*lambda0-sin(AOI));
-    GD = G./cos(beta0);
-    GDD = -2*GD./c.*lambda0./(2*pi*c) .* (lambda0.*N./cos(beta0)).^2;
-    TOD = -3.*GDD.*lambda0./(2*pi*c) .* (1 + lambda0.*N.*sin(beta0)./(cos(beta0)).^2);
-    GDD_out = GDD / 1e-30;
-    TOD_out = TOD / 1e-45;
-    
-    grating_phase = TOD./6.*(omega-omega0).^3 + GDD./2.*(omega-omega0).^2;
-    
+    if (nargout == 5)
+        if options.optimize
+            phase_appr = polyfit(omega,phase,4);
+            GDD_orig = polyval(polyder(polyder(phase_appr)),omega0);
+            G_optim = fsolve(@(G)1e30.*(-2*(G./cos(beta0))./c.*lambda0./(2*pi*c) .* (lambda0.*N./cos(beta0)).^2+GDD_orig),G);
+            GD = G_optim./cos(beta0);
+            GDD = -2*GD./c.*lambda0./(2*pi*c) .* (lambda0.*N./cos(beta0)).^2;
+            TOD = -3.*GDD.*lambda0./(2*pi*c) .* (1 + lambda0.*N.*sin(beta0)./(cos(beta0)).^2);
+            GDD_out = GDD / 1e-30;
+            TOD_out = TOD / 1e-45;
+            varargout{1} = G_optim;
+
+            grating_phase = TOD./6.*(omega-omega0).^3 + GDD./2.*(omega-omega0).^2;
+        else
+            GD = G./cos(beta0);
+            GDD = -2*GD./c.*lambda0./(2*pi*c) .* (lambda0.*N./cos(beta0)).^2;
+            TOD = -3.*GDD.*lambda0./(2*pi*c) .* (1 + lambda0.*N.*sin(beta0)./(cos(beta0)).^2);
+            GDD_out = GDD / 1e-30;
+            TOD_out = TOD / 1e-45;
+
+            grating_phase = TOD./6.*(omega-omega0).^3 + GDD./2.*(omega-omega0).^2;
+            varargout{1} = -1;
+        end
+    else
+        GD = G./cos(beta0);
+        GDD = -2*GD./c.*lambda0./(2*pi*c) .* (lambda0.*N./cos(beta0)).^2;
+        TOD = -3.*GDD.*lambda0./(2*pi*c) .* (1 + lambda0.*N.*sin(beta0)./(cos(beta0)).^2);
+        GDD_out = GDD / 1e-30;
+        TOD_out = TOD / 1e-45;
+
+        grating_phase = TOD./6.*(omega-omega0).^3 + GDD./2.*(omega-omega0).^2;
+    end
     new_phase = phase + grating_phase;
 end
