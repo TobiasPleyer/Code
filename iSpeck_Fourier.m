@@ -14,8 +14,8 @@ function [t1,E] = Speck_Fourier(lambda, S)
 
     Sw = Sw./max(Sw);
     
-    E = fftshift(fft(ifftshift(Sw)));
- 
+    %E = fftshift(fft(ifftshift(Sw))); OLD LINE
+    E = fftshift(ifft(ifftshift(Sw)));
     E = E./max(E);
 
 end

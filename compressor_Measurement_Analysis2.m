@@ -1,0 +1,159 @@
+clc;    % Clear the command window.
+close all;  % Close all figures (except those of imtool.)
+clear;  % Erase all existing variables. Or clearvars if you want.
+set(0,'DefaultFigureWindowStyle','docked') % Plots will be docked in the IDE main window
+F_size_Label = 16;
+colors = {'blue', 'red', 'green', 'cyan', 'magenta', 'black', 'yellow'};
+colors = {[0 0 1], [1 0 0], [0 1 0], [0 1 1], [1 0 1], [0 0 0], [1 0.6 0]};
+
+folder_base = 'T:/Tobias/Chirped Mirror Compressor/Originals/Frogs/';
+index = '001';
+folder_cmp = [folder_base 'Compressed/' index '/'];
+folder_ucmp = [folder_base 'Uncompressed/' index '/'];
+
+filebase_cmp = [index '_FROG_Compressor1'];
+filebase_ucmp = [index '_FROG_Test2'];
+
+Ek_suffix = '.bin.Ek.dat';
+Speck_suffix = '.bin.Speck.dat';
+
+filename_cmp_Ek = [folder_cmp filebase_cmp Ek_suffix];
+filename_ucmp_Ek = [folder_ucmp filebase_ucmp Ek_suffix];
+filename_cmp_Speck = [folder_cmp filebase_cmp Speck_suffix];
+filename_ucmp_Speck = [folder_ucmp filebase_ucmp Speck_suffix];
+filename_narrow_Trubetskov  = 'T:\Tobias\Chirped Mirror Compressor\Originals\Trubetskov_Mirror_Specification_Narrow_Band.txt';
+
+% The phase data for the 1 mirror case and full compressor is saved in this
+% .mat file. Be aware that the 1 mirror phase is already multiplied by the
+% number of mirrors in the compressor.
+load('T:/Tobias/Chirped Mirror Compressor/Analysis/Narrow_Variables_Comparison_1M_Full')
+
+% I am still not sure which is the correct spectral phase difference that
+% results from the measurements. For now I will choose the _v2 variables.
+phase_meas_Full = narrow_Full_v2;
+phase_meas_1M = narrow_1M_v2;
+
+temp = dlmread(filename_cmp_Ek);
+cmp_Ek_time = temp(:,1);
+cmp_Ek_int = temp(:,2);
+cmp_Ek_phase = temp(:,3);
+temp = dlmread(filename_cmp_Speck);
+cmp_Speck_wavel = temp(:,1);
+cmp_Speck_int = temp(:,2);
+cmp_Speck_phase = temp(:,3);
+temp = dlmread(filename_ucmp_Ek);
+ucmp_Ek_time = temp(:,1);
+ucmp_Ek_int = temp(:,2);
+ucmp_Ek_phase = temp(:,3);
+temp = dlmread(filename_ucmp_Speck);
+ucmp_Speck_wavel = temp(:,1);
+ucmp_Speck_int = temp(:,2);
+ucmp_Speck_phase = temp(:,3);
+temp = dlmread(filename_narrow_Trubetskov,'\t',1,0);
+theo_wavel = temp(:,1);
+theo_phase = 20.*temp(:,2);
+
+clear temp;
+
+%Calculate the Fourier limit for the uncompressed pulse
+[Int_F,t_F,Ek_F] = compressor_toTimeDomain(ucmp_Speck_int,ucmp_Speck_wavel,5);
+[Int_C,t_C,Ek_C] = compressor_toTimeDomain(cmp_Speck_int,cmp_Speck_wavel,cmp_Speck_phase,5);
+
+% In order to perform calculations we always need to bring all data on a
+% common x-axis value basis
+common_wavelength = (1012:0.1:1048)';
+cmp_Speck_int = interp1(cmp_Speck_wavel,cmp_Speck_int,common_wavelength);
+ucmp_Speck_int = interp1(ucmp_Speck_wavel,ucmp_Speck_int,common_wavelength);
+cmp_Speck_phase = interp1(cmp_Speck_wavel,cmp_Speck_phase,common_wavelength);
+ucmp_Speck_phase = interp1(ucmp_Speck_wavel,ucmp_Speck_phase,common_wavelength);
+theo_phase = interp1(theo_wavel,theo_phase,common_wavelength);
+
+compressor_phase = cmp_Speck_phase - ucmp_Speck_phase;
+phase_1bounce = compressor_phase ./ 20;
+
+bounces = [8 16 20];
+n = 1;
+N = length(bounces);
+Specks = {};
+for i=n:N
+    Specks{i-n+1} = cmp_Speck_phase - bounces(i).* phase_1bounce;
+    [Int_N_less(i-n+1),t_N_less(:,i-n+1),Ek_N_less(:,i-n+1)] = compressor_toTimeDomain(cmp_Speck_int,common_wavelength,Specks{i-n+1},5);
+end
+
+figure()
+[AX, ~, ~] = plotyy(ucmp_Ek_time,ucmp_Ek_int,ucmp_Ek_time,ucmp_Ek_phase);
+title('The uncompressed pulse in time','FontSize',F_size_Label)
+set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
+set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
+set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
+set(AX,'FontSize',16)
+
+figure()
+[AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);
+title('The compressed pulse in time after the compressor','FontSize',F_size_Label)
+set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
+set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
+set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
+set(AX,'FontSize',16)
+
+figure()
+%Int_meas = abs(trapz(cmp_Ek_time,cmp_Ek_int));
+H1 = zeros(1,2+N-n+1);
+H2 = zeros(1,1+N-n+1);
+%[AX, H1(1), H2(1)] = plotyy(cmp_Ek_time,cmp_Ek_int./Int_meas.*Int_F,cmp_Ek_time,cmp_Ek_phase);
+[AX, H1(1), H2(1)] = plotyy(t_C,abs(Ek_C).^2./Int_C.*Int_F,t_C,-unwrap(angle(Ek_C)));
+set(H1(1),'Color',colors{1},'LineStyle','-')
+set(H2(1),'Color',colors{1},'LineStyle','--')
+hold(AX(1))
+hold(AX(2))
+[H1(2)] = plot(AX(1),t_F,abs(Ek_F).^2);
+set(H1(2),'Color',colors{2},'LineStyle','-')
+leg  = {'Measured','Fourier limit'};
+for i=n:N
+    l = [num2str(bounces(i)) ' bounce(s) less'];
+    leg{2+i-n+1} = l;
+    [H1(2+i-n+1)] = plot(AX(1),t_N_less(:,i-n+1),abs(Ek_N_less(:,i-n+1)).^2./Int_N_less(i-n+1).*Int_F);
+    [H2(1+i-n+1)] = plot(AX(2),t_N_less(:,i-n+1),-unwrap(angle(Ek_N_less(:,i-n+1))));
+    set(H1(2+i-n+1),'Color',colors{mod(2+i-n,8)+1},'LineStyle','-')
+    set(H2(1+i-n+1),'Color',colors{mod(2+i-n,8)+1},'LineStyle','--')
+end
+title(sprintf('Compression result for reduced number of bounces'),'FontSize',14)
+set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
+set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
+set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
+xlim(AX(1),[-2000 2000])
+xlim(AX(2),[-2000 2000])
+ylim(AX(1),[0 1.1])
+l = legend(H1,leg,'Location','NorthWest');
+set(AX,'FontSize',F_size_Label)
+
+figure()
+plot(common_wavelength,cmp_Speck_phase,'Color',colors{1})
+leg = {'Compressed with current setup'};
+hold on
+for i=n:N
+    if bounces(i)==8
+        l = [num2str(bounces(i)) ' bounce(s) less (optimum)'];
+    elseif bounces(i)==20
+        l = [num2str(bounces(i)) ' bounce(s) less (uncompressed case)'];
+    else
+        l = [num2str(bounces(i)) ' bounce(s) less'];
+    end
+    leg{i-n+2} = l;
+    plot(common_wavelength,Specks{i-n+1},'Color',colors{mod(1+i-n,8)+1})
+end
+plot(common_wavelength,cmp_Speck_int.*16-10,'k-')
+hold off
+xlim([1022 1038])
+xlabel('wavelength [nm]','FontSize',F_size_Label)
+ylabel('phase [rad]','FontSize',F_size_Label)
+title('View of the spectra for configurations with different numbers of mirros','FontSize',14)
+l = legend(leg,'Location','NorthWest');
+set(gca,'FontSize',F_size_Label)
+
+[t_min,t_max,Int] = auxiliary_findFWHM(t_C,abs(Ek_C).^2);
+fprintf('FWHM with current setup: %f\n',t_max-t_min)
+[t_min,t_max,Int] = auxiliary_findFWHM(t_N_less(:,1),abs(Ek_N_less(:,1)).^2);
+fprintf('FWHM for optimum setup: %f\n',t_max-t_min)
+[t_min,t_max,Int] = auxiliary_findFWHM(t_F,abs(Ek_F).^2);
+fprintf('FWHM of Fourier limit: %f\n',t_max-t_min)
