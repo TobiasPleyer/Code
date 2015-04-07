@@ -67,7 +67,7 @@ figure()
 plot(t_F,abs(Ek_F).^2,'Color',colors{1});
 hold on
 plot(t_C,abs(Ek_C).^2./Int_C.*Int_F,'Color',colors{2})
-leg = {'Fourier limit','Compression result last time (20 bounces)'};
+leg = {'Fourier limit',sprintf('Compression result last\ntime (20 bounces)')};
 %Start to prepare the variables for the following plots
 indices = {'003','004','006'};
 expl = {'11 bounces @17.8 W','12 bounces @17.4 W','13 bounces @15.9 W'};
@@ -90,12 +90,14 @@ for i=1:length(indices)
     leg{2+i} = expl{i};
 end
 hold off
-legend(leg)
-title('Measured results for the possibility to improve the compressor','FontSize',14)
+h = legend(leg);
+%title('Measured results for the possibility to improve the compressor','FontSize',14)
 xlabel('time [fs]','FontSize',F_size_Label)
 ylabel('intensity a.u.','FontSize',F_size_Label)
 xlim([-2000 2000])
 set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'../Bilder/Measured_Improvement','epsc')
 
 %################### REFERENCE ############################################
 % 
@@ -141,18 +143,20 @@ plot(t_F,abs(Ek_F).^2,'Color',colors{1});
 hold on
 %plot(cmp_Ek_time,cmp_Ek_int./Int_meas.*Int_F)
 plot(t_C,abs(Ek_C).^2./Int_C.*Int_F,'Color',colors{2})
-leg = {'Fourier limit','Compression result last time (20 bounces)'};
+leg = {'Fourier limit',sprintf('Compression result last\ntime (20 bounces)')};
 for i=n:N
     l = [num2str(bounces(i)) ' bounce(s)'];
     leg{2+i-n+1} = l;
     plot(t_N_less(:,i-n+1),abs(Ek_N_less(:,i-n+1)).^2./Int_N_less(i-n+1).*Int_F,'Color',colors{i-n+3});
 end
-legend(leg)
-title('Numerical calculations for the possibility to improve the compressor','FontSize',14)
+h = legend(leg);
+%title('Numerical calculations for the possibility to improve the compressor','FontSize',14)
 xlabel('time [fs]','FontSize',F_size_Label)
 ylabel('intensity a.u.','FontSize',F_size_Label)
 xlim([-2000 2000])
 set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'../Bilder/Calculated_Improvement','epsc')
 
 HD536_files = {
     '003_FROG_Compressor_11bounces',
@@ -160,9 +164,9 @@ HD536_files = {
     '006_FROG_Compressor_11bounces'
 };
 file_titles = {
-    'Compressor HD536 11 bounces @ 17.8 W',
-    'Compressor HD536 12 bounces @ 17.4 W',
-    'Compressor HD536 13 bounces @ 15.9 W'
+    'Compressor_HD536_11_bounces_17,8W',
+    'Compressor_HD536_12_bounces_17,4W',
+    'Compressor_HD536_13_bounces_15,9W'
 };
 
 for i=1:length(HD536_files)
@@ -200,13 +204,15 @@ leg{4} = 'Spectrum @21.88 W';
 spectrum = dlmread(filename,'\t',[15,0,3600,1]);
 plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{5})
 hold off
-legend(leg)
-title('Comparison between the spectra for different output powers','FontSize',14)
+h = legend(leg);
+%title('Comparison between the spectra for different output powers','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('intensity a.u.','FontSize',F_size_Label)
 xlim([1015 1045])
 ylim([0 1.1])
 set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'../Bilder/Comparison_Spectra','epsc')
 
 names = {'006_FROG_Compressor_11bounces','007_FROG_Compressor_11bounces'};
 expl = {'Compressor 13 HD536 @15.9 W','Compressor 12 HD536 + 1 HD535 @17.0 W'};
@@ -220,9 +226,9 @@ HD535_files = {
     '005_FROG_4bouncesHD535'
 };
 file_titles = {
-    'Compressor HD535 8 bounces @ 17.1 W',
-    'Compressor HD535 4 bounces @ 17.6 W',
-    'Compressor HD535 4 bounces @ 21.9 W'
+    'Compressor_HD535_8bounces_17,1W',
+    'Compressor_HD535_4bounces_17,6W',
+    'Compressor_HD535_4bounces_21,9W'
 };
 
 for i=1:length(HD535_files)
@@ -242,11 +248,12 @@ Speck_phase = interp1(Speck_wavel,Speck_phase,common_wavelength);
 phase_of_HD535 = Speck_phase - ucmp_Speck_phase;
 figure()
 [AX,~,~] = plotyy(common_wavelength,ucmp_Speck_int,common_wavelength,phase_of_HD535);
-title(sprintf('The phase of the compressor HD535 (8 bounces) drawn\nover the spectrum of the uncompressed pulse'),'FontSize',14)
+%title(sprintf('The phase of the compressor HD535 (8 bounces) drawn\nover the spectrum of the uncompressed pulse'),'FontSize',14)
 set(get(AX(1),'XLabel'),'String','wavelength [nm]','FontSize',F_size_Label)
 set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
 set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
 set(AX,'FontSize',F_size_Label)
+saveas(gcf,'../Bilder/Phase_HD535','epsc')
 
 %Find out the phase of the HD536 compressor
 filename = '004_FROG_Compressor_11bounces';
@@ -261,8 +268,9 @@ Speck_phase = interp1(Speck_wavel,Speck_phase,common_wavelength);
 phase_of_HD536 = Speck_phase - ucmp_Speck_phase;
 figure()
 [AX,~,~] = plotyy(common_wavelength,ucmp_Speck_int,common_wavelength,phase_of_HD536);
-title(sprintf('The phase of the compressor HD536 (12 bounces) drawn\nover the spectrum of the uncompressed pulse'),'FontSize',14)
+%title(sprintf('The phase of the compressor HD536 (12 bounces) drawn\nover the spectrum of the uncompressed pulse'),'FontSize',14)
 set(get(AX(1),'XLabel'),'String','wavelength [nm]','FontSize',F_size_Label)
 set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
 set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
 set(AX,'FontSize',F_size_Label)
+saveas(gcf,'../Bilder/Phase_HD536','epsc')

@@ -57,6 +57,8 @@ idx = auxiliary_find_closest_idx(common_wavelength,1029.9);
 ucmp_Speck_phase2 = auxiliary_removeJump(ucmp_Speck_phase,idx,-1.9,-10);
     
 phase_difference = ucmp_Speck_phase2 - sent_Speck_phase;
+Sent_Ucmp_Diff = phase_difference;
+save('T:\Tobias\Chirped Mirror Compressor\Analysis\Sent_Ucmp_Diff','Sent_Ucmp_Diff')
 
 figure()
 plot(common_wavelength,ucmp_Speck_phase)
@@ -66,12 +68,14 @@ plot(common_wavelength,sent_Speck_phase,'r-')
 plot(common_wavelength,ucmp_Speck_int.*10-2,'b--')
 plot(common_wavelength,sent_Speck_int.*10-2,'r--')
 hold off
-legend('Pulse sent into compressor',sprintf('Pulse sent into compressor\nwith removed phase jump'),'Pulse used for production')
-title(sprintf('Direct comparison between the pulse used to design the\nmirrors and the pulse that was sent into the compressor'),'FontSize',14)
+h = legend('Pulse sent into compressor',sprintf('Pulse sent into compressor\nwith removed phase jump'),'Pulse used for production');
+%title(sprintf('Direct comparison between the pulse used to design the\nmirrors and the pulse that was sent into the compressor'),'FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
 xlim([1022 1038])
 set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'Sent_compared_Design','epsc')
 
 fit_x = 1022:0.1:1038;
 fit_y = interp1(common_wavelength,phase_difference,fit_x);
@@ -82,29 +86,51 @@ figure()
 [AX,~,~] = plotyy(common_wavelength,ucmp_Speck_int,common_wavelength,phase_difference);
 hold(AX(2))
 plot(AX(2),fit_x,fit_y,'r-')
-title('The phase difference P_{sent in} - P_{production}','FontSize',14)
+%title('The phase difference P_{sent in} - P_{production}','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
 xlim(AX(1),[1022 1038])
 xlim(AX(2),[1022 1038])
 ylim(AX(2),[-5 0])
-legend(AX(2),'phase difference','polynomial fit')
+h = legend(AX(2),'phase difference','polynomial fit');
 set(AX,'FontSize',F_size_Label)
 set(AX(2),'YTick',-5:1:0)
 set(AX(1),'Box','off')
 set(AX,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'Sent_minus_Design','epsc')
 
 figure()
 plot(common_wavelength,ucmp_GDD)
 hold on
 plot(common_wavelength,sent_GDD,'r-')
 hold off
-legend('Pulse sent into compressor','Pulse used for production')
-title(sprintf('The GDDs of the measured uncompressed pulse and\nthe original pulse for whom the mirrors were designed'),'FontSize',14)
+h = legend('Pulse sent into compressor','Pulse used for production');
+%title(sprintf('The GDDs of the measured uncompressed pulse and\nthe original pulse for whom the mirrors were designed'),'FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('GDD [fs^2]','FontSize',F_size_Label)
 xlim([1022 1038])
 set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'GDD_Sent_Design','epsc')
+
+[ucmp_w_filtered,ucmp_GDD_filtered]=auxiliary_GDD_from_with_Filter(common_wavelength,ucmp_Speck_phase,0.2);
+[ucmp_w_filtered2,ucmp_GDD_filtered2]=auxiliary_GDD_from_with_Filter(common_wavelength,ucmp_Speck_phase2,0.2);
+[sent_w_filtered,sent_GDD_filtered]=auxiliary_GDD_from_with_Filter(common_wavelength,sent_Speck_phase,0.2);
+
+figure()
+hold on
+plot(ucmp_w_filtered2,ucmp_GDD_filtered2,'g-')
+plot(sent_w_filtered,sent_GDD_filtered,'r-')
+hold off
+h = legend(sprintf('Pulse sent into compressor\nwith removed phase jump'),'Pulse used for production');
+%title(sprintf('The numerically calculated GDD curves of the measured uncompressed\npulse and the original pulse for whom the mirrors were designed'),'FontSize',14)
+xlabel('wavelength [nm]','FontSize',F_size_Label)
+ylabel('GDD [fs^2]','FontSize',F_size_Label)
+xlim([1022 1038])
+set(gca,'FontSize',F_size_Label)
+set(h,'FontSize',10)
+saveas(gcf,'GDD_Sent_Design_Filter','epsc')
 
 [~,GDD] = compressor_HOD_from(fit_x,fit_y,2,10);
 [~,TOD] = compressor_HOD_from(fit_x,fit_y,3,10);
@@ -112,19 +138,22 @@ set(gca,'FontSize',F_size_Label)
 
 figure()
 plot(fit_x,GDD,'r-')
-title('The GDD for the phase difference P_{sent in} - P_{production}','FontSize',14)
+%title('The GDD for the phase difference P_{sent in} - P_{production}','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
 set(gca,'FontSize',F_size_Label)
+saveas(gcf,'GDD_Phase_Diff_Sent_Design','epsc')
 figure()
 plot(fit_x,TOD,'r-')
-title('The TOD for the phase difference P_{sent in} - P_{production}','FontSize',14)
+%title('The TOD for the phase difference P_{sent in} - P_{production}','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
 set(gca,'FontSize',F_size_Label)
+saveas(gcf,'TOD_Phase_Diff_Sent_Design','epsc')
 figure()
 plot(fit_x,FOD,'r-')
-title('The FOD for the phase difference P_{sent in} - P_{production}','FontSize',14)
+%title('The FOD for the phase difference P_{sent in} - P_{production}','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
 set(gca,'FontSize',F_size_Label)
+saveas(gcf,'FOD_Phase_Diff_Sent_Design','epsc')

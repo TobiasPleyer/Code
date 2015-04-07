@@ -97,10 +97,13 @@ phase_after_Full = ucmp_Speck_phase + phase_meas_Full;
 
 figure()
 [AX, ~, ~] = plotyy(ucmp_Ek_time,ucmp_Ek_int,ucmp_Ek_time,ucmp_Ek_phase);
-title('The uncompressed pulse in time','FontSize',F_size_Label)
+%title('The uncompressed pulse in time','FontSize',F_size_Label)
 set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
 set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
 set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
+set(AX(2),'YTick',-25:5:10)
+set(AX(1),'Box','off')
+set(AX,'FontSize',F_size_Label)
 
 figure()
 [AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);

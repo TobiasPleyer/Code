@@ -29,12 +29,12 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
         FWHM = FWHM_flag;
         cw = false;
     elseif nargin == 3
-        Speck_title = sprintf('Spectral domain: %s',title_str);
-        Ek_title = sprintf('Temporal domain: %s',title_str);
+        Speck_title = sprintf('Spectral_domain_%s',title_str);
+        Ek_title = sprintf('Temporal_domain_%s',title_str);
         FWHM = FWHM_flag;
     elseif nargin == 4
-        Speck_title = sprintf('Spectral domain: %s',title_str);
-        Ek_title = sprintf('Temporal domain: %s',title_str);
+        Speck_title = sprintf('Spectral_domain_%s',title_str);
+        Ek_title = sprintf('Temporal_domain_%s',title_str);
         FWHM = FWHM_flag;
         cw = true;
     else % Should never be entered
@@ -66,7 +66,7 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
         label = sprintf('FWHM: %2.0f fs',t_max-t_min);
         text((t_max+t_min)/2-length(label)*30,0.45,label)
     end
-    title(Ek_title,'FontSize',F_size_Label)
+    %title(Ek_title,'FontSize',F_size_Label)
     set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
     set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
     set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
@@ -83,10 +83,11 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
     set(AX(2),'YTick',m:5:M)
     set(AX(1),'Box','off')
     set(AX,'FontSize',F_size_Label)
+    saveas(gcf,sprintf('../Bilder/%s',Ek_title),'epsc')
 
     figure()
     [AX,~,~] = plotyy(common_wavelength,Speck_int,common_wavelength,Speck_phase);
-    title(Speck_title,'FontSize',F_size_Label)
+    %title(Speck_title,'FontSize',F_size_Label)
     set(get(AX(1),'XLabel'),'String','wavelength [nm]','FontSize',F_size_Label)
     set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
     set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
@@ -104,4 +105,5 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
     set(AX(2),'YTick',m:5:M)
     set(AX(1),'Box','off')
     set(AX,'FontSize',F_size_Label)
+    saveas(gcf,sprintf('../Bilder/%s',Speck_title),'epsc')
 end

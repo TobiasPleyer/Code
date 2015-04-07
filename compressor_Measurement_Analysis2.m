@@ -82,50 +82,58 @@ end
 
 figure()
 [AX, ~, ~] = plotyy(ucmp_Ek_time,ucmp_Ek_int,ucmp_Ek_time,ucmp_Ek_phase);
-title('The uncompressed pulse in time','FontSize',F_size_Label)
+[t_min,t_max,Int] = auxiliary_findFWHM(ucmp_Ek_time,ucmp_Ek_int);
+%title('The uncompressed pulse in time','FontSize',F_size_Label)
 set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
 set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
 set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
 set(AX,'FontSize',16)
-
-figure()
-[AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);
-title('The compressed pulse in time after the compressor','FontSize',F_size_Label)
-set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
-set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
-set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
-set(AX,'FontSize',16)
-
-figure()
-%Int_meas = abs(trapz(cmp_Ek_time,cmp_Ek_int));
-H1 = zeros(1,2+N-n+1);
-H2 = zeros(1,1+N-n+1);
-%[AX, H1(1), H2(1)] = plotyy(cmp_Ek_time,cmp_Ek_int./Int_meas.*Int_F,cmp_Ek_time,cmp_Ek_phase);
-[AX, H1(1), H2(1)] = plotyy(t_C,abs(Ek_C).^2./Int_C.*Int_F,t_C,-unwrap(angle(Ek_C)));
-set(H1(1),'Color',colors{1},'LineStyle','-')
-set(H2(1),'Color',colors{1},'LineStyle','--')
+ylim(AX(2),[-25 10])
+xlim(AX(1),[-3000 3000])
+xlim(AX(2),[-3000 3000])
 hold(AX(1))
-hold(AX(2))
-[H1(2)] = plot(AX(1),t_F,abs(Ek_F).^2);
-set(H1(2),'Color',colors{2},'LineStyle','-')
+plot(AX(1),[t_min,t_min,t_max,t_max],[0,0.5,0.5,0],'r-')
+label = sprintf('FWHM: %2.0f fs',t_max-t_min);
+text((t_max+t_min)/2-length(label)*50,0.45,label,'FontSize',16)
+saveas(gcf,'../Bilder/Additional/Uncompressed','epsc')
+
+figure()
+[Int,t,Ek] = compressor_toTimeDomain(cmp_Speck_int,common_wavelength,cmp_Speck_phase,5);
+[t_min,t_max,Int] = auxiliary_findFWHM(t,abs(Ek).^2);
+[AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);
+%title('The compressed pulse in time after the compressor','FontSize',F_size_Label)
+set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
+set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
+set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
+set(AX,'FontSize',16)
+ylim(AX(2),[-5 30])
+xlim(AX(1),[-3000 3000])
+xlim(AX(2),[-3000 3000])
+hold(AX(1))
+plot(AX(1),[t_min,t_min,t_max,t_max],[0,0.5,0.5,0],'r-')
+label = sprintf('FWHM: %2.0f fs',t_max-t_min);
+text(t_max + 40,0.45,label,'FontSize',16)
+saveas(gcf,'../Bilder/Additional/Compressed_20Bounces','epsc')
+
+figure()
+plot(t_C,abs(Ek_C).^2./Int_C.*Int_F)
+hold on
+plot(t_F,abs(Ek_F).^2,'Color',colors{2});
 leg  = {'Measured','Fourier limit'};
 for i=n:N
     l = [num2str(bounces(i)) ' bounce(s) less'];
     leg{2+i-n+1} = l;
-    [H1(2+i-n+1)] = plot(AX(1),t_N_less(:,i-n+1),abs(Ek_N_less(:,i-n+1)).^2./Int_N_less(i-n+1).*Int_F);
-    [H2(1+i-n+1)] = plot(AX(2),t_N_less(:,i-n+1),-unwrap(angle(Ek_N_less(:,i-n+1))));
-    set(H1(2+i-n+1),'Color',colors{mod(2+i-n,8)+1},'LineStyle','-')
-    set(H2(1+i-n+1),'Color',colors{mod(2+i-n,8)+1},'LineStyle','--')
+    plot(t_N_less(:,i-n+1),abs(Ek_N_less(:,i-n+1)).^2./Int_N_less(i-n+1).*Int_F,'Color',colors{mod(2+i-n,8)+1});
 end
-title(sprintf('Compression result for reduced number of bounces'),'FontSize',14)
-set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
-set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)
-set(get(AX(2),'YLabel'),'String','phase [rad]','FontSize',F_size_Label)
-xlim(AX(1),[-2000 2000])
-xlim(AX(2),[-2000 2000])
-ylim(AX(1),[0 1.1])
-l = legend(H1,leg,'Location','NorthWest');
-set(AX,'FontSize',F_size_Label)
+%title(sprintf('Compression result for reduced number of bounces'),'FontSize',14)
+xlabel('time [fs]','FontSize',F_size_Label)
+ylabel('intensity [a.u.]','FontSize',F_size_Label)
+xlim([-2000 2000])
+ylim([0 1.1])
+l = legend(leg,'Location','NorthWest');
+set(gca,'FontSize',F_size_Label)
+set(l,'FontSize',10)
+saveas(gcf,'../Bilder/Additional/Optimization_20Bounces','epsc')
 
 figure()
 plot(common_wavelength,cmp_Speck_phase,'Color',colors{1})
@@ -147,9 +155,11 @@ hold off
 xlim([1022 1038])
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('phase [rad]','FontSize',F_size_Label)
-title('View of the spectra for configurations with different numbers of mirros','FontSize',14)
-l = legend(leg,'Location','NorthWest');
+%title('View of the spectra for configurations with different numbers of mirros','FontSize',14)
+l = legend(leg,'Location','NorthEast');
 set(gca,'FontSize',F_size_Label)
+set(l,'FontSize',10)
+saveas(gcf,'../Bilder/Additional/Optimization_20Bounces_Difference','epsc')
 
 [t_min,t_max,Int] = auxiliary_findFWHM(t_C,abs(Ek_C).^2);
 fprintf('FWHM with current setup: %f\n',t_max-t_min)
