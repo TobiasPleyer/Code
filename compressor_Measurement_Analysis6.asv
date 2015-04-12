@@ -189,26 +189,26 @@ leg = {};
 filename = sprintf('%03d_Spectrum_Compressor_11bounces.txt',i);
 leg{1} = sprintf('Spectrum @%2.2f W',powers(i));
 spectrum = dlmread(filename,'\t',[15,0,3600,1]);
-plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',[1 0.75 0],'LineWidth',5)
+plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{1},'LineWidth',5)
 filename = sprintf('%03d_Spectrum_Compressor_11bounces.txt',I);
 leg{2} = sprintf('Spectrum @%2.2f W',powers(I));
 spectrum = dlmread(filename,'\t',[15,0,3600,1]);
-plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{3},'LineWidth',4)
+plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{2},'LineWidth',2)
 filename = sprintf('%03d_Spectrum_Compressor_11bounces.txt',i_avg);
 leg{3} = sprintf('Spectrum @%2.2f W',powers(i_avg));
 spectrum = dlmread(filename,'\t',[15,0,3600,1]);
-plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{2},'LineWidth',3)
+plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color',colors{3},'LineWidth',1.5)
 %The 22W measurement
 filename = '005_Spectrum_4bouncesHD535.txt';
 leg{4} = 'Spectrum @21.88 W';
 spectrum = dlmread(filename,'\t',[15,0,3600,1]);
-plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color','black','LineWidth',2)
+plot(spectrum(:,1),spectrum(:,2)./max(spectrum(:,2)),'Color','black')
 hold off
-h = legend(leg,'Location','NorthWest');
+h = legend(leg);
 %title('Comparison between the spectra for different output powers','FontSize',14)
 xlabel('wavelength [nm]','FontSize',F_size_Label)
 ylabel('intensity a.u.','FontSize',F_size_Label)
-xlim([1019 1039])
+xlim([1015 1045])
 ylim([0 1.1])
 set(gca,'FontSize',F_size_Label)
 set(h,'FontSize',10)

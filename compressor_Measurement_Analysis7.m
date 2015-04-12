@@ -85,6 +85,7 @@ for i=1:3
     xlim(AX(1),[1020 1040])
     xlim(AX(2),[1020 1040])
     ylim(AX(2),[-5 10])
+    set(AX(2),'YTick',-5:4:10)
     l = legend(AX(2),sprintf('Compressed phase\nafter %d bounces',10+i),'P_s - P_d','Location','NorthEast');
     set(AX,'FontSize',16)
     set(l,'FontSize',12)

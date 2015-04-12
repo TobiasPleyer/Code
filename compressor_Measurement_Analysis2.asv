@@ -103,7 +103,7 @@ figure()
 [Int,t,Ek] = compressor_toTimeDomain(cmp_Speck_int,common_wavelength,cmp_Speck_phase,5);
 [t_min,t_max,Int] = auxiliary_findFWHM(t,abs(Ek).^2);
 %[AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);
-[AX, ~, ~] = plotyy(t,abs(Ek).^2,cmp_Ek_time,cmp_Ek_phase);
+[AX, ~, ~] = plotyy(cmp_Ek_time,cmp_Ek_int,cmp_Ek_time,cmp_Ek_phase);
 %title('The compressed pulse in time after the compressor','FontSize',F_size_Label)
 set(get(AX(1),'XLabel'),'String','time [fs]','FontSize',F_size_Label)
 set(get(AX(1),'YLabel'),'String','intensity [a.u.]','FontSize',F_size_Label)

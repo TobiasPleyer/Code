@@ -38,14 +38,16 @@ for i=2:12
 end
 
 colors = {'blue', 'red', 'green', 'cyan', 'magenta', 'black'};
-plot(common_wavelength,p{i},'Color',colors{mod(1,6)+1},'LineWidth',4)
+plot(common_wavelength,p{1},'Color',colors{1})
 hold on
-for i=2:12
-    plot(common_wavelength,p{i},'Color',colors{mod(i,6)+1})
-end
+plot(common_wavelength,p{5},'Color',colors{2})
+plot(common_wavelength,p{9},'Color',colors{3})
+plot(common_wavelength,p{12},'Color',colors{4})
 %title(sprintf('Effect of different angles of incidence. The wheel of the\nmirror mount was varied between 0 and 1000 degrees.'),'FontSize',18)
+legend('0° (Reference)','360°','720°','990°','Location','South')
 xlabel('wavelength [nm]','FontSize',18)
 ylabel('phase [rad]','FontSize',18)
 xlim([1010 1050])
 set(gca,'FontSize',16)
 hold off
+saveas(gcf,'T:\Tobias\Chirped Mirror Compressor\Analysis\20150326\Bilder\direct_comparison_M1-M12','epsc')

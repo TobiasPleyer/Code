@@ -80,7 +80,11 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
     m = floor(min(p(min(idx1,idx2):max(idx1,idx2))));
     M = ceil(max(p(min(idx1,idx2):max(idx1,idx2))));
     ylim(AX(2),[m M])
-    set(AX(2),'YTick',m:5:M)
+    if M-m > 30
+        set(AX(2),'YTick',m:4:M)
+    else
+        set(AX(2),'YTick',m:2:M)
+    end
     set(AX(1),'Box','off')
     set(AX,'FontSize',F_size_Label)
     saveas(gcf,sprintf('../Bilder/%s',Ek_title),'epsc')
@@ -102,7 +106,11 @@ function [common_wavelength,Speck_int,Speck_phase]=auxiliary_plotPulse(filename,
     m = floor(min(Speck_phase(min(idx1,idx2):max(idx1,idx2))));
     M = ceil(max(Speck_phase(min(idx1,idx2):max(idx1,idx2))));
     ylim(AX(2),[m M])
-    set(AX(2),'YTick',m:5:M)
+    if M-m > 30
+        set(AX(2),'YTick',m:4:M)
+    else
+        set(AX(2),'YTick',m:2:M)
+    end
     set(AX(1),'Box','off')
     set(AX,'FontSize',F_size_Label)
     saveas(gcf,sprintf('../Bilder/%s',Speck_title),'epsc')
